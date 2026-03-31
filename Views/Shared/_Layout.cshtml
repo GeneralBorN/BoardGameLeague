@@ -20,7 +20,17 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Dashboard</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" id="leagueMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">League</a>
+                            <ul class="dropdown-menu" aria-labelledby="leagueMenu">
+                                <li><a class="dropdown-item" asp-controller="Home" asp-action="Teams">Teams</a></li>
+                                <li><a class="dropdown-item" asp-controller="Home" asp-action="Tournaments">Tournaments</a></li>
+                                <li><a class="dropdown-item" asp-controller="Home" asp-action="Matches">Matches</a></li>
+                                <li><a class="dropdown-item" asp-controller="Home" asp-action="BoardGames">Board Games</a></li>
+                                <li><a class="dropdown-item" asp-controller="Home" asp-action="Players">Players</a></li>
+                            </ul>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>

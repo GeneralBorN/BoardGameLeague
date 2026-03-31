@@ -1,0 +1,22 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "powershell.exe -ExecutionPolicy Bypass -Command \"$input | Add-Content -Path 'D:\\Fax\\ASP_NET\\BoardGameLeague\\.github\\hooks\\agent_log.txt'\""
+      }
+    ],
+    "preToolUse": [
+      {
+        "type": "command",
+        "command": "powershell.exe -ExecutionPolicy Bypass -Command \"$input | Add-Content -Path 'D:\\Fax\\ASP_NET\\BoardGameLeague\\.github\\hooks\\agent_log.txt'\""
+      }
+    ],
+    "code-accepted": [
+      {
+        "type": "command",
+        "command": "powershell.exe -ExecutionPolicy Bypass -Command \"contexts = @(); $input | ForEach-Object { contexts += $_.value }; $contexts = $contexts -join \"`n\" | Out-String ; $contexts | Add-Content -Path 'D:\\Fax\\ASP_NET\\BoardGameLeague\\.github\\hooks\\agent_log.txt'\""
+      }
+    ]
+  }
+}

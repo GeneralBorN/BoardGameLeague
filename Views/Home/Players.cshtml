@@ -1,0 +1,36 @@
+@model List<BoardGameLeague.Models.Player>
+
+@{
+    ViewData["Title"] = "Players";
+}
+
+<div class="container py-3">
+    <h1 class="mb-3 text-secondary">Players</h1>
+    <p>All players across teams.</p>
+
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Name</th>
+                <th>Rating</th>
+                <th>Role</th>
+                <th>Country</th>
+                <th>Joined</th>
+                <th>Teams</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var player in Model)
+            {
+                <tr>
+                    <td>@player.Name</td>
+                    <td>@player.Rating</td>
+                    <td>@player.Role</td>
+                    <td>@player.Country</td>
+                    <td>@player.JoinedDate.ToString("yyyy-MM-dd")</td>
+                    <td>@string.Join(", ", player.Teams.Select(t => t.Name))</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

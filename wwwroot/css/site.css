@@ -19,4 +19,94 @@ html {
 
 body {
   margin-bottom: 60px;
+  background: #1e1e1e;
+  color: #d4d4d4;
+}
+
+.container, .card, .card-body, .card-header, .card-title, .card-text, .card-subtitle, .table, .table thead th, .table tbody tr, .table thead tr, .bg-light, .bg-white, .bg-dark-surface {
+  background-color: #1e1e1e !important;
+  border-color: #333 !important;
+  color: #d4d4d4 !important;
+}
+
+.list-group-item, .list-group-item-action, .table thead th, .table td, .table th {
+  background-color: #252526 !important;
+  color: #d4d4d4 !important;
+  border-color: #333 !important;
+}
+
+.list-group-item.active, .list-group-item-action:active, .list-group-item:hover, .list-group-item:focus {
+  background-color: #3a3d41 !important;
+  color: #ffffff !important;
+}
+
+.navbar, .footer, .dropdown-menu {
+  background-color: #252526 !important;
+  border-color: #333 !important;
+}
+
+.nav-link, .navbar-brand, .footer, .card, .card-body, .card-text, .card-title, .card-subtitle, .table, .btn, .dropdown-item {
+  color: #d4d4d4 !important;
+}
+
+.card-header, .table-dark th, .table thead th {
+  background-color: #007acc !important;
+  color: white;
+}
+
+.table-bordered, .table-bordered th, .table-bordered td {
+  border-color: #3d3d3d !important;
+}
+
+.card, .card-body {
+  background-color: #1f1f1f !important;
+}
+
+.table {
+  background-color: #1f1f1f !important;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: #2d2d30;
+}
+
+.table-hover > tbody > tr:hover {
+  background-color: #3e3e42;
+}
+
+.btn-outline-primary, .btn-outline-success, .btn-outline-warning, .btn-outline-info {
+  color: #9cdcfe;
+  border-color: #9cdcfe;
+  background-color: #1e1e1e;
+}
+
+.btn-outline-primary:hover, .btn-outline-success:hover, .btn-outline-warning:hover, .btn-outline-info:hover {
+  background-color: #007acc;
+  border-color: #007acc;
+  color: #ffffff;
+}
+
+.dropdown-menu {
+  background-color: #1f1f1f;
+  border: 1px solid #333;
+}
+
+.dropdown-item {
+  color: #d4d4d4;
+  background-color: transparent;
+}
+
+.dropdown-item:hover, .dropdown-item:focus {
+  color: #ffffff;
+  background-color: #007acc;
+}
+
+.table, .table th, .table td, .table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: #1f1f1f;
+  color: #d4d4d4;
+  border-color: #333;
+}
+
+.container, .main, .row, .col {
+  color: #d4d4d4;
 }

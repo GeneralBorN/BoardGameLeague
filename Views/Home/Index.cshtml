@@ -1,8 +1,120 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model BoardGameLeague.Models.LeagueDashboardViewModel
+
+@{
+    ViewData["Title"] = "Board Game League Dashboard";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container py-3">
+    <div class="p-4 rounded bg-dark-surface border mb-4">
+        <h1 class="display-6 text-primary">Board Game League Dashboard</h1>
+        <p class="lead">Overview of your league data with a colorful and easy-to-read layout.</p>
+        <p>
+            <a class="btn btn-outline-primary me-2" asp-action="Teams">View Teams</a>
+            <a class="btn btn-outline-success me-2" asp-action="Tournaments">View Tournaments</a>
+            <a class="btn btn-outline-warning me-2" asp-action="Matches">View Matches</a>
+            <a class="btn btn-outline-info" asp-action="BoardGames">View Board Games</a>
+        </p>
+    </div>
+    <div class="row gx-3 gy-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-primary shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Total Teams</h5>
+                    <p class="display-6 text-primary">@Model.AllTeams.Count</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-success shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Tournaments</h5>
+                    <p class="display-6 text-success">@Model.AllTournaments.Count</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-warning shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Matches</h5>
+                    <p class="display-6 text-warning">@Model.AllMatches.Count</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-info shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Board Games</h5>
+                    <p class="display-6 text-info">@Model.AllBoardGames.Count</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row gx-3 gy-3">
+        <div class="col-lg-6">
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">Top 3 Teams (Avg Player Rating)</div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var team in Model.TopTeamsByAveragePlayerRating)
+                    {
+                        <li class="list-group-item">@team.Name: <strong>@team.Players.Average(p => p.Rating):F0</strong> rating, Win rate <span class="badge bg-success">@team.WinRate:P1</span></li>
+                    }
+                </ul>
+            </div>
+            <div class="card mb-3">
+                <div class="card-header bg-success text-white">High Win-Rate Teams (&gt;= 60%)</div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var team in Model.HighWinRateTeams)
+                    {
+                        <li class="list-group-item">@team.Name <span class="badge bg-secondary">@team.WinRate:P1</span></li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card mb-3">
+                <div class="card-header bg-warning text-dark">Upcoming Tournaments</div>
+                <table class="table table-sm mb-0">
+                    <thead>
+                        <tr><th>Name</th><th>Start</th><th>Venue</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var t in Model.UpcomingTournaments)
+                        {
+                            <tr>
+                                <td>@t.Name</td>
+                                <td>@t.StartDate.ToString("yyyy-MM-dd")</td>
+                                <td>@t.Venue.Name</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="card mb-3">
+                <div class="card-header bg-info text-white">Popular Games (by matches)</div>
+                <ol class="list-group list-group-numbered list-group-flush">
+                    @foreach (var game in Model.PopularGameNames)
+                    {
+                        <li class="list-group-item">@game</li>
+                    }
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-dark text-white">Matches by Venue</div>
+        <div class="card-body">
+            <ul class="list-group">
+                @foreach (var kvp in Model.MatchesByVenue)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        @kvp.Key
+                        <span class="badge bg-primary rounded-pill">@kvp.Value</span>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
 </div>
