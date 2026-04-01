@@ -2,20 +2,35 @@
   "hooks": {
     "UserPromptSubmit": [
       {
-        "type": "command",
-        "command": "powershell.exe -ExecutionPolicy Bypass -Command \"$input | Add-Content -Path 'D:\\Fax\\ASP_NET\\BoardGameLeague\\.github\\hooks\\agent_log.txt'\""
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -ExecutionPolicy Bypass -Command \"[Console]::In.ReadToEnd() | Add-Content -Path 'D:\\Fax\\ASP_NET\\BoardGameLeague\\copilot-chat-logs\\copilot-chat.log'\""
+          }
+        ]
       }
     ],
     "preToolUse": [
       {
-        "type": "command",
-        "command": "powershell.exe -ExecutionPolicy Bypass -Command \"$input | Add-Content -Path 'D:\\Fax\\ASP_NET\\BoardGameLeague\\.github\\hooks\\agent_log.txt'\""
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -ExecutionPolicy Bypass -Command \"[Console]::In.ReadToEnd() | Add-Content -Path 'D:\\Fax\\ASP_NET\\BoardGameLeague\\copilot-chat-logs\\copilot-chat.log'\""
+          }
+        ]
       }
     ],
     "code-accepted": [
       {
-        "type": "command",
-        "command": "powershell.exe -ExecutionPolicy Bypass -Command \"contexts = @(); $input | ForEach-Object { contexts += $_.value }; $contexts = $contexts -join \"`n\" | Out-String ; $contexts | Add-Content -Path 'D:\\Fax\\ASP_NET\\BoardGameLeague\\.github\\hooks\\agent_log.txt'\""
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -ExecutionPolicy Bypass -Command \"$data = [Console]::In.ReadToEnd(); $data | Add-Content -Path 'D:\\Fax\\ASP_NET\\BoardGameLeague\\copilot-chat-logs\\copilot-chat.log'\""
+          }
+        ]
       }
     ]
   }
