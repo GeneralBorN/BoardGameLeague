@@ -1,0 +1,37 @@
+@model BoardGameLeague.Models.BoardGame
+
+@{
+    ViewData["Title"] = "Board Game Details";
+}
+
+<nav aria-label="breadcrumb" class="breadcrumb-panel mb-4">
+    <ol class="breadcrumb custom-breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">League Pulse</a></li>
+        <li class="breadcrumb-item"><a asp-controller="BoardGames" asp-action="Index">Board Games</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
+    </ol>
+</nav>
+
+<div class="section-shell py-4">
+    <div class="detail-banner">
+        <div>
+            <span class="eyebrow">Game details</span>
+            <h1>@Model.Name</h1>
+            <p class="section-description">A @Model.Category category game with room for @Model.MinPlayers–@Model.MaxPlayers players.</p>
+        </div>
+        <div class="detail-status status-pill status-highlight">Complexity @Model.Complexity:F1</div>
+    </div>
+
+    <div class="card detail-panel">
+        <div class="card-header">Specifications</div>
+        <div class="card-body">
+            <dl class="detail-list">
+                <dt>Category</dt><dd>@Model.Category</dd>
+                <dt>Minimum players</dt><dd>@Model.MinPlayers</dd>
+                <dt>Maximum players</dt><dd>@Model.MaxPlayers</dd>
+                <dt>Average play time</dt><dd>@Model.AveragePlayTime.TotalMinutes:F0 minutes</dd>
+                <dt>Complexity</dt><dd>@Model.Complexity:F1 / 5</dd>
+            </dl>
+        </div>
+    </div>
+</div>

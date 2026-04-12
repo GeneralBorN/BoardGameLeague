@@ -1,0 +1,41 @@
+@model List<BoardGameLeague.Models.Match>
+
+@{
+    ViewData["Title"] = "Matches";
+}
+
+<div class="section-shell py-4">
+    <div class="section-header">
+        <span class="eyebrow">Matches</span>
+        <h1>League match card</h1>
+        <p class="section-description">Track every scheduled match and navigate directly to the complete matchup breakdown.</p>
+    </div>
+
+    <div class="table-responsive custom-table-wrapper">
+        <table class="table custom-table">
+            <thead>
+                <tr>
+                    <th>Match</th>
+                    <th>Tournament</th>
+                    <th>Game</th>
+                    <th>Start</th>
+                    <th>Score</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var match in Model)
+                {
+                    <tr>
+                        <td>@match.TeamA.Name vs @match.TeamB.Name</td>
+                        <td><a asp-controller="Tournaments" asp-action="Details" asp-route-id="@match.Tournament.Id">@match.Tournament.Name</a></td>
+                        <td><a asp-controller="BoardGames" asp-action="Details" asp-route-id="@match.Game.Id">@match.Game.Name</a></td>
+                        <td>@match.StartTime:yyyy-MM-dd HH:mm</td>
+                        <td>@match.ScoreA - @match.ScoreB</td>
+                        <td><a class="btn btn-sm btn-outline-info" asp-action="Details" asp-route-id="@match.Id">Open</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

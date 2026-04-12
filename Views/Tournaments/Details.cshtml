@@ -1,0 +1,66 @@
+@model BoardGameLeague.Models.Tournament
+
+@{
+    ViewData["Title"] = "Tournament Details";
+}
+
+<nav aria-label="breadcrumb" class="breadcrumb-panel mb-4">
+    <ol class="breadcrumb custom-breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">League Pulse</a></li>
+        <li class="breadcrumb-item"><a asp-controller="Tournaments" asp-action="Index">Tournaments</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
+    </ol>
+</nav>
+
+<div class="section-shell py-4">
+    <div class="detail-banner">
+        <div>
+            <span class="eyebrow">Tournament summary</span>
+            <h1>@Model.Name</h1>
+            <p class="section-description">Hosted at @Model.Venue.Name in @Model.Venue.City, @Model.Venue.Country. @Model.Description</p>
+        </div>
+        <div class="detail-status status-pill @(Model.IsOpen ? "status-active" : "status-inactive")">@(Model.IsOpen ? "Open registration" : "Closed")</div>
+    </div>
+
+    <div class="row gx-4 gy-4">
+        <div class="col-lg-4">
+            <div class="card detail-panel">
+                <div class="card-header">Event details</div>
+                <div class="card-body">
+                    <dl class="detail-list">
+                        <dt>Start</dt><dd>@Model.StartDate:yyyy-MM-dd</dd>
+                        <dt>End</dt><dd>@Model.EndDate:yyyy-MM-dd</dd>
+                        <dt>Venue</dt><dd><a asp-controller="Venues" asp-action="Details" asp-route-id="@Model.Venue.Id">@Model.Venue.Name</a></dd>
+                        <dt>Capacity</dt><dd>@Model.Venue.Capacity</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="card detail-panel">
+                <div class="card-header">Teams participating</div>
+                <div class="card-body">
+                    <ul class="detail-list items-list">
+                        @foreach (var team in Model.Teams)
+                        {
+                            <li><a asp-controller="Teams" asp-action="Details" asp-route-id="@team.Id">@team.Name</a> • @team.Region</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+            <div class="card detail-panel">
+                <div class="card-header">Matches</div>
+                <div class="card-body">
+                    <ul class="detail-list items-list">
+                        @foreach (var match in Model.Matches)
+                        {
+                            <li>
+                                <a asp-controller="Matches" asp-action="Details" asp-route-id="@match.Id">@match.TeamA.Name vs @match.TeamB.Name</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

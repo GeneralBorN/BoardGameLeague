@@ -1,0 +1,36 @@
+@model BoardGameLeague.Models.Venue
+
+@{
+    ViewData["Title"] = "Venue Details";
+}
+
+<nav aria-label="breadcrumb" class="breadcrumb-panel mb-4">
+    <ol class="breadcrumb custom-breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">League Pulse</a></li>
+        <li class="breadcrumb-item"><a asp-controller="Venues" asp-action="Index">Venues</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
+    </ol>
+</nav>
+
+<div class="section-shell py-4">
+    <div class="detail-banner">
+        <div>
+            <span class="eyebrow">Venue profile</span>
+            <h1>@Model.Name</h1>
+            <p class="section-description">@Model.City, @Model.Country — Capacity @Model.Capacity.</p>
+        </div>
+        <div class="detail-status status-pill @(Model.Indoor ? "status-active" : "status-warning")">@(Model.Indoor ? "Indoor" : "Outdoor")</div>
+    </div>
+
+    <div class="card detail-panel">
+        <div class="card-header">Upcoming tournaments</div>
+        <div class="card-body">
+            <ul class="detail-list items-list">
+                @foreach (var tournament in Model.Tournaments)
+                {
+                    <li><a asp-controller="Tournaments" asp-action="Details" asp-route-id="@tournament.Id">@tournament.Name</a> (@tournament.StartDate:yyyy-MM-dd)</li>
+                }
+            </ul>
+        </div>
+    </div>
+</div>

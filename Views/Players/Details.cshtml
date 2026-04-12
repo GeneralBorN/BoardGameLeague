@@ -1,0 +1,53 @@
+@model BoardGameLeague.Models.Player
+
+@{
+    ViewData["Title"] = "Player Details";
+}
+
+<nav aria-label="breadcrumb" class="breadcrumb-panel mb-4">
+    <ol class="breadcrumb custom-breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">League Pulse</a></li>
+        <li class="breadcrumb-item"><a asp-controller="Players" asp-action="Index">Players</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
+    </ol>
+</nav>
+
+<div class="section-shell py-4">
+    <div class="detail-banner">
+        <div>
+            <span class="eyebrow">Player profile</span>
+            <h1>@Model.Name</h1>
+            <p class="section-description">A flexible competitor with rating @Model.Rating and current role as @Model.Role.</p>
+        </div>
+        <div class="detail-status status-pill status-highlight">@Model.Country</div>
+    </div>
+
+    <div class="row gx-4 gy-4">
+        <div class="col-lg-5">
+            <div class="card detail-panel">
+                <div class="card-header">Personal summary</div>
+                <div class="card-body">
+                    <dl class="detail-list">
+                        <dt>Rating</dt><dd>@Model.Rating</dd>
+                        <dt>Role</dt><dd>@Model.Role</dd>
+                        <dt>Country</dt><dd>@Model.Country</dd>
+                        <dt>Joined</dt><dd>@Model.JoinedDate:yyyy-MM-dd</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-7">
+            <div class="card detail-panel">
+                <div class="card-header">Teams</div>
+                <div class="card-body">
+                    <ul class="detail-list items-list">
+                        @foreach (var team in Model.Teams)
+                        {
+                            <li><a asp-controller="Teams" asp-action="Details" asp-route-id="@team.Id">@team.Name</a> — @team.Region</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

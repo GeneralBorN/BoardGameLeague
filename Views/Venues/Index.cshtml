@@ -1,0 +1,32 @@
+@model List<BoardGameLeague.Models.Venue>
+
+@{
+    ViewData["Title"] = "Venues";
+}
+
+<div class="section-shell py-4">
+    <div class="section-header">
+        <span class="eyebrow">Venues</span>
+        <h1>Event locations</h1>
+        <p class="section-description">See venues that host tournaments and compare capacity, city and surface type.</p>
+    </div>
+
+    <div class="card-grid card-grid-small">
+        @foreach (var venue in Model)
+        {
+            <article class="metric-card compact-card">
+                <div class="metric-card-top">
+                    <span class="tag">@(venue.Indoor ? "Indoor" : "Outdoor")</span>
+                    <h2>@venue.Name</h2>
+                </div>
+                <div class="metric-card-body">
+                    <p>Location: <strong>@venue.City, @venue.Country</strong></p>
+                    <p>Capacity: <strong>@venue.Capacity</strong></p>
+                </div>
+                <div class="metric-card-footer">
+                    <a class="btn btn-outline-info" asp-action="Details" asp-route-id="@venue.Id">Details</a>
+                </div>
+            </article>
+        }
+    </div>
+</div>

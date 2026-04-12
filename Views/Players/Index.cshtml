@@ -1,0 +1,34 @@
+@model List<BoardGameLeague.Models.Player>
+
+@{
+    ViewData["Title"] = "Players";
+}
+
+<div class="section-shell py-4">
+    <div class="section-header">
+        <span class="eyebrow">Players</span>
+        <h1>Player roster</h1>
+        <p class="section-description">View every competitor across the league, with rating, role and active squads.</p>
+    </div>
+
+    <div class="card-grid card-grid-small">
+        @foreach (var player in Model)
+        {
+            <article class="metric-card compact-card">
+                <div class="metric-card-top">
+                    <span class="tag">@player.Role</span>
+                    <h2>@player.Name</h2>
+                </div>
+                <div class="metric-card-body">
+                    <p>Rating: <strong>@player.Rating</strong></p>
+                    <p>Country: <strong>@player.Country</strong></p>
+                    <p>Joined: <strong>@player.JoinedDate:yyyy-MM-dd</strong></p>
+                    <p class="small-text">Teams: @string.Join(", ", player.Teams.Select(t => t.Name))</p>
+                </div>
+                <div class="metric-card-footer">
+                    <a class="btn btn-outline-info" asp-action="Details" asp-route-id="@player.Id">Detail</a>
+                </div>
+            </article>
+        }
+    </div>
+</div>

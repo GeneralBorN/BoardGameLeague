@@ -1,0 +1,67 @@
+@model BoardGameLeague.Models.Team
+
+@{
+    ViewData["Title"] = "Team Details";
+}
+
+<nav aria-label="breadcrumb" class="breadcrumb-panel mb-4">
+    <ol class="breadcrumb custom-breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">League Pulse</a></li>
+        <li class="breadcrumb-item"><a asp-controller="Teams" asp-action="Index">Teams</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
+    </ol>
+</nav>
+
+<div class="section-shell py-4">
+    <div class="detail-banner">
+        <div>
+            <span class="eyebrow">Team profile</span>
+            <h1>@Model.Name</h1>
+            <p class="section-description">@Model.Region • Founded @Model.FoundedDate:yyyy • @Model.Players.Count players</p>
+        </div>
+        <div class="detail-status">
+            <span class="status-pill @(Model.IsActive ? "status-active" : "status-inactive")">@(Model.IsActive ? "Active" : "Inactive")</span>
+        </div>
+    </div>
+
+    <div class="row gx-4 gy-4">
+        <div class="col-lg-6">
+            <div class="card detail-panel">
+                <div class="card-header">Team scorecard</div>
+                <div class="card-body">
+                    <dl class="detail-list">
+                        <dt>Total wins</dt><dd>@Model.TotalWins</dd>
+                        <dt>Total losses</dt><dd>@Model.TotalLosses</dd>
+                        <dt>Win rate</dt><dd>@Model.WinRate:P1</dd>
+                        <dt>Average player rating</dt><dd>@(Model.Players.Any() ? Model.Players.Average(p => p.Rating).ToString("F0") : "—")</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="card detail-panel">
+                <div class="card-header">Tournament schedule</div>
+                <div class="card-body">
+                    <ul class="detail-list items-list">
+                        @foreach (var tournament in Model.Tournaments)
+                        {
+                            <li><a asp-controller="Tournaments" asp-action="Details" asp-route-id="@tournament.Id">@tournament.Name</a> (@tournament.StartDate:yyyy-MM-dd)</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card detail-panel">
+                <div class="card-header">Players</div>
+                <div class="card-body">
+                    <ul class="detail-list items-list">
+                        @foreach (var player in Model.Players)
+                        {
+                            <li><a asp-controller="Players" asp-action="Details" asp-route-id="@player.Id">@player.Name</a> — @player.Role, @player.Country</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

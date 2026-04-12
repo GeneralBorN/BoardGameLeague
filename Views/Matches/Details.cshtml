@@ -1,0 +1,49 @@
+@model BoardGameLeague.Models.Match
+
+@{
+    ViewData["Title"] = "Match Details";
+}
+
+<nav aria-label="breadcrumb" class="breadcrumb-panel mb-4">
+    <ol class="breadcrumb custom-breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">League Pulse</a></li>
+        <li class="breadcrumb-item"><a asp-controller="Matches" asp-action="Index">Matches</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@Model.TeamA.Name vs @Model.TeamB.Name</li>
+    </ol>
+</nav>
+
+<div class="section-shell py-4">
+    <div class="detail-banner">
+        <div>
+            <span class="eyebrow">Match card</span>
+            <h1>@Model.TeamA.Name vs @Model.TeamB.Name</h1>
+            <p class="section-description">@Model.Tournament.Name on @Model.StartTime:yyyy-MM-dd at @Model.Tournament.Venue.Name.</p>
+        </div>
+        <div class="detail-status status-pill @(Model.IsCompleted ? "status-active" : "status-warning")">@(Model.IsCompleted ? "Completed" : "Pending")</div>
+    </div>
+
+    <div class="row gx-4 gy-4">
+        <div class="col-lg-6">
+            <div class="card detail-panel">
+                <div class="card-header">Match details</div>
+                <div class="card-body">
+                    <dl class="detail-list">
+                        <dt>Tournament</dt><dd><a asp-controller="Tournaments" asp-action="Details" asp-route-id="@Model.Tournament.Id">@Model.Tournament.Name</a></dd>
+                        <dt>Game</dt><dd><a asp-controller="BoardGames" asp-action="Details" asp-route-id="@Model.Game.Id">@Model.Game.Name</a></dd>
+                        <dt>Venue</dt><dd><a asp-controller="Venues" asp-action="Details" asp-route-id="@Model.Tournament.Venue.Id">@Model.Tournament.Venue.Name</a></dd>
+                        <dt>Start time</dt><dd>@Model.StartTime:yyyy-MM-dd HH:mm</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card detail-panel">
+                <div class="card-header">Score summary</div>
+                <div class="card-body">
+                    <p class="detail-score"><strong>@Model.TeamA.Name</strong> @Model.ScoreA — @Model.ScoreB <strong>@Model.TeamB.Name</strong></p>
+                    <p>Winner: <strong>@Model.Winner.Name</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

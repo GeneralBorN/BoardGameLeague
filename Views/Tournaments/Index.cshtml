@@ -1,0 +1,33 @@
+@model List<BoardGameLeague.Models.Tournament>
+
+@{
+    ViewData["Title"] = "Tournaments";
+}
+
+<div class="section-shell py-4">
+    <div class="section-header">
+        <span class="eyebrow">Tournaments</span>
+        <h1>Competition schedule</h1>
+        <p class="section-description">Review every league tournament, venue and team lineup.</p>
+    </div>
+
+    <div class="card-grid">
+        @foreach (var tournament in Model)
+        {
+            <article class="metric-card">
+                <div class="metric-card-top">
+                    <span class="tag">@(tournament.IsOpen ? "Open" : "Closed")</span>
+                    <h2>@tournament.Name</h2>
+                </div>
+                <div class="metric-card-body">
+                    <p>@tournament.Description</p>
+                    <p><strong>@tournament.StartDate:yyyy-MM-dd</strong> → <strong>@tournament.EndDate:yyyy-MM-dd</strong></p>
+                    <p>Venue: <strong>@tournament.Venue.Name</strong></p>
+                </div>
+                <div class="metric-card-footer">
+                    <a class="btn btn-outline-info" asp-action="Details" asp-route-id="@tournament.Id">View event</a>
+                </div>
+            </article>
+        }
+    </div>
+</div>
