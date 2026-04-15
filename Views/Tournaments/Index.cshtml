@@ -21,7 +21,7 @@
                 </div>
                 <div class="metric-card-body">
                     <p>@tournament.Description</p>
-                    <p><strong>@tournament.StartDate:yyyy-MM-dd</strong> → <strong>@tournament.EndDate:yyyy-MM-dd</strong></p>
+                    <p><strong>@(tournament.StartDate.ToString("yyyy-MM-dd"))</strong> → <strong>@(tournament.EndDate.ToString("yyyy-MM-dd"))</strong></p>
                     <p>Venue: <strong>@tournament.Venue.Name</strong></p>
                 </div>
                 <div class="metric-card-footer">

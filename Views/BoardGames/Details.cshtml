@@ -19,7 +19,7 @@
             <h1>@Model.Name</h1>
             <p class="section-description">A @Model.Category category game with room for @Model.MinPlayers–@Model.MaxPlayers players.</p>
         </div>
-        <div class="detail-status status-pill status-highlight">Complexity @Model.Complexity:F1</div>
+        <div class="detail-status status-pill status-highlight">Complexity @(Model.Complexity.ToString("F1"))</div>
     </div>
 
     <div class="card detail-panel">
@@ -29,8 +29,8 @@
                 <dt>Category</dt><dd>@Model.Category</dd>
                 <dt>Minimum players</dt><dd>@Model.MinPlayers</dd>
                 <dt>Maximum players</dt><dd>@Model.MaxPlayers</dd>
-                <dt>Average play time</dt><dd>@Model.AveragePlayTime.TotalMinutes:F0 minutes</dd>
-                <dt>Complexity</dt><dd>@Model.Complexity:F1 / 5</dd>
+                <dt>Average play time</dt><dd>@(Model.AveragePlayTime.TotalMinutes.ToString("F0")) minutes</dd>
+                <dt>Complexity</dt><dd>@(Model.Complexity.ToString("F1")) / 5</dd>
             </dl>
         </div>
     </div>

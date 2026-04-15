@@ -31,7 +31,7 @@
                         <dt>Rating</dt><dd>@Model.Rating</dd>
                         <dt>Role</dt><dd>@Model.Role</dd>
                         <dt>Country</dt><dd>@Model.Country</dd>
-                        <dt>Joined</dt><dd>@Model.JoinedDate:yyyy-MM-dd</dd>
+                        <dt>Joined</dt><dd>@(Model.JoinedDate.ToString("yyyy-MM-dd"))</dd>
                     </dl>
                 </div>
             </div>

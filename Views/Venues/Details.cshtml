@@ -28,7 +28,7 @@
             <ul class="detail-list items-list">
                 @foreach (var tournament in Model.Tournaments)
                 {
-                    <li><a asp-controller="Tournaments" asp-action="Details" asp-route-id="@tournament.Id">@tournament.Name</a> (@tournament.StartDate:yyyy-MM-dd)</li>
+                    <li><a asp-controller="Tournaments" asp-action="Details" asp-route-id="@tournament.Id">@tournament.Name</a> (@(tournament.StartDate.ToString("yyyy-MM-dd")))</li>
                 }
             </ul>
         </div>

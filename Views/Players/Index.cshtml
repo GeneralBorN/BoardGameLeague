@@ -22,7 +22,7 @@
                 <div class="metric-card-body">
                     <p>Rating: <strong>@player.Rating</strong></p>
                     <p>Country: <strong>@player.Country</strong></p>
-                    <p>Joined: <strong>@player.JoinedDate:yyyy-MM-dd</strong></p>
+                    <p>Joined: <strong>@(player.JoinedDate.ToString("yyyy-MM-dd"))</strong></p>
                     <p class="small-text">Teams: @string.Join(", ", player.Teams.Select(t => t.Name))</p>
                 </div>
                 <div class="metric-card-footer">

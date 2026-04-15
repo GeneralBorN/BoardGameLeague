@@ -28,8 +28,8 @@
                 <div class="card-header">Event details</div>
                 <div class="card-body">
                     <dl class="detail-list">
-                        <dt>Start</dt><dd>@Model.StartDate:yyyy-MM-dd</dd>
-                        <dt>End</dt><dd>@Model.EndDate:yyyy-MM-dd</dd>
+                        <dt>Start</dt><dd>@(Model.StartDate.ToString("yyyy-MM-dd"))</dd>
+                        <dt>End</dt><dd>@(Model.EndDate.ToString("yyyy-MM-dd"))</dd>
                         <dt>Venue</dt><dd><a asp-controller="Venues" asp-action="Details" asp-route-id="@Model.Venue.Id">@Model.Venue.Name</a></dd>
                         <dt>Capacity</dt><dd>@Model.Venue.Capacity</dd>
                     </dl>

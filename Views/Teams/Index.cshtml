@@ -20,10 +20,10 @@
                     <h2>@team.Name</h2>
                 </div>
                 <div class="metric-card-body">
-                    <p>Founded: <strong>@team.FoundedDate:yyyy-MM-dd</strong></p>
+                    <p>Founded: <strong>@(team.FoundedDate.ToString("yyyy-MM-dd"))</strong></p>
                     <p>Players: <strong>@team.Players.Count</strong></p>
                     <p>Record: <strong>@team.TotalWins-@team.TotalLosses</strong></p>
-                    <p>Win Rate: <strong>@team.WinRate:P1</strong></p>
+                    <p>Win Rate: <strong>@team.WinRate.ToString("P1")</strong></p>
                 </div>
                 <div class="metric-card-footer">
                     <a class="btn btn-outline-info" asp-action="Details" asp-route-id="@team.Id">View details</a>

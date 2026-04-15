@@ -30,7 +30,7 @@
                         <td>@match.TeamA.Name vs @match.TeamB.Name</td>
                         <td><a asp-controller="Tournaments" asp-action="Details" asp-route-id="@match.Tournament.Id">@match.Tournament.Name</a></td>
                         <td><a asp-controller="BoardGames" asp-action="Details" asp-route-id="@match.Game.Id">@match.Game.Name</a></td>
-                        <td>@match.StartTime:yyyy-MM-dd HH:mm</td>
+                        <td>@(match.StartTime.ToString("yyyy-MM-dd HH:mm"))</td>
                         <td>@match.ScoreA - @match.ScoreB</td>
                         <td><a class="btn btn-sm btn-outline-info" asp-action="Details" asp-route-id="@match.Id">Open</a></td>
                     </tr>

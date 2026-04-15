@@ -17,7 +17,7 @@
         <div>
             <span class="eyebrow">Match card</span>
             <h1>@Model.TeamA.Name vs @Model.TeamB.Name</h1>
-            <p class="section-description">@Model.Tournament.Name on @Model.StartTime:yyyy-MM-dd at @Model.Tournament.Venue.Name.</p>
+            <p class="section-description">@Model.Tournament.Name on @(Model.StartTime.ToString("yyyy-MM-dd")) at @Model.Tournament.Venue.Name.</p>
         </div>
         <div class="detail-status status-pill @(Model.IsCompleted ? "status-active" : "status-warning")">@(Model.IsCompleted ? "Completed" : "Pending")</div>
     </div>
@@ -31,7 +31,7 @@
                         <dt>Tournament</dt><dd><a asp-controller="Tournaments" asp-action="Details" asp-route-id="@Model.Tournament.Id">@Model.Tournament.Name</a></dd>
                         <dt>Game</dt><dd><a asp-controller="BoardGames" asp-action="Details" asp-route-id="@Model.Game.Id">@Model.Game.Name</a></dd>
                         <dt>Venue</dt><dd><a asp-controller="Venues" asp-action="Details" asp-route-id="@Model.Tournament.Venue.Id">@Model.Tournament.Venue.Name</a></dd>
-                        <dt>Start time</dt><dd>@Model.StartTime:yyyy-MM-dd HH:mm</dd>
+                        <dt>Start time</dt><dd>@(Model.StartTime.ToString("yyyy-MM-dd HH:mm"))</dd>
                     </dl>
                 </div>
             </div>

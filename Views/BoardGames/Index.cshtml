@@ -21,8 +21,8 @@
                 </div>
                 <div class="metric-card-body">
                     <p>Players: <strong>@game.MinPlayers–@game.MaxPlayers</strong></p>
-                    <p>Play time: <strong>@game.AveragePlayTime.TotalMinutes:F0</strong> min</p>
-                    <p>Complexity: <strong>@game.Complexity:F1</strong></p>
+                    <p>Play time: <strong>@(game.AveragePlayTime.TotalMinutes.ToString("F0"))</strong> min</p>
+                    <p>Complexity: <strong>@(game.Complexity.ToString("F1"))</strong></p>
                 </div>
                 <div class="metric-card-footer">
                     <a class="btn btn-outline-info" asp-action="Details" asp-route-id="@game.Id">Explore</a>

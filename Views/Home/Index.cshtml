@@ -102,7 +102,7 @@
                         {
                             <tr>
                                 <td><a asp-controller="Tournaments" asp-action="Details" asp-route-id="@tournament.Id">@tournament.Name</a></td>
-                                <td>@tournament.StartDate:yyyy-MM-dd</td>
+                                <td>@(tournament.StartDate.ToString("yyyy-MM-dd"))</td>
                                 <td>@tournament.Venue.Name</td>
                             </tr>
                         }
