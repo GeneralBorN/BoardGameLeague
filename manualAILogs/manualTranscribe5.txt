@@ -1,0 +1,111 @@
+Gemini
+O GeminijuOtvara se u novom prozoru
+Aplikacija GeminiOtvara se u novom prozoru
+PretplateOtvara se u novom prozoru
+Za tvrtkeOtvara se u novom prozoru
+Board Game League: Razvojne Promjene i Ispravci
+https://gemini.google.com/share/a40a8c12d4e8
+Izrađeno pomoću modela Fast 16. travnja 2026. u 17:02
+Objavljeno 16. travnja 2026. u 17:05
+Možeš mi objasniti sve promjene koje su tu bile napravljene, zašto i kako
+
+Na temelju dostavljenih datoteka i logova, evo detaljnog objašnjenja svih promjena koje su napravljene u sklopu razvoja Board Game League aplikacije, podijeljenih po ključnim fazama i razlozima:
+
+1. Implementacija domenskog modela i podataka (Lab 1)
+Što je napravljeno:
+
+Kreiran je cjeloviti objektni model koji uključuje entitete: Player, BoardGame, Team, Venue, Tournament i Match.
+
+Implementirana je klasa LeagueDataFactory koja asinkrono generira testne podatke (seed data) koristeći LINQ upite.
+
+Primjeri korištenih LINQ upita uključuju rangiranje timova po prosječnom rejtingu igrača, filtriranje timova s visokim postotkom pobjeda te grupiranje mečeva po lokacijama (Venues).
+
+Zašto:
+
+Kako bi se zadovoljili zahtjevi prve vježbe koji traže kompleksne klase (više od 5 svojstava), korištenje enuma, DateTime polja i definiranje veza (1-N i N-N).
+
+2. Mock Repository i Arhitektura
+Što je napravljeno:
+
+Kreiran je MockLeagueRepository koji implementira sučelje ILeagueRepository.
+
+Podaci se dohvaćaju iz statičkog dashboard modela (LeagueDashboardViewModel) koji se puni prilikom inicijalizacije repozitorija.
+
+Sve metode repozitorija su asinkrone (Task.FromResult), što omogućuje lakši prijelaz na pravu bazu podataka u budućnosti.
+
+Kako:
+
+Kontroleri (npr. BoardGamesController) ne komuniciraju direktno s podacima, već koriste Dependency Injection kako bi dobili instancu repozitorija.
+
+3. Vizualni identitet i UI/UX (Lab 2)
+Što je napravljeno:
+
+Dark Theme: Cijela aplikacija je prebačena u tamni način rada (VS Code style) s bojama poput #1e1e1e za pozadinu i #007acc za naglašene elemente.
+
+UX Sub-Agent: Definirane su posebne upute za "UX Sub-agenta" koji mora izbjegavati standardni Bootstrap izgled u korist modernog gaming dizajna s gradient panelima i karticama.
+
+Ispravak Dashboarda: Naknadno su ispravljeni problemi gdje su neki dijelovi dashboarda (poput hero sekcije i tablica) ostali svijetli.
+
+Zašto:
+
+Cilj je bio odmaknuti se od generičkog izgleda i stvoriti atmosferu "league command center-a" koja priliči natjecanju u društvenim igrama.
+
+4. Tehnički ispravci i stabilizacija
+Što je napravljeno:
+
+Ispravak formata datuma: Riješen je bug gdje je Razor ispisivao doslovne stringove formata umjesto formatiranog datuma. Sada se koristi eksplicitni .ToString("yyyy-MM-dd").
+
+Rješavanje port konflikta: Aplikacija je prebačena na portove 5001 i 5002 jer je port 5000 bio zauzet, uz skripte za automatsko gašenje procesa koji blokiraju portove.
+
+Zašto:
+
+Formatiranje je bilo nužno zbog čitljivosti podataka na stranicama timova i turnira, a promjena portova omogućila je nesmetano pokretanje aplikacije lokalno.
+
+Sažetak trenutnog stanja:
+Aplikacija sada ima funkcionalan model podataka, asinkroni repozitorij koji simulira bazu, te specifičan tamni vizualni stil prilagođen gaming temi, uz ispravljene sve uočene tehničke pogreške u prikazu.
+
+kako radi taj mock repository i sučelje za isti?
+
+Mock repository i njegovo sučelje (interface) funkcioniraju kao most između kontrolera i podataka, omogućujući aplikaciji da radi s testnim podacima bez potrebe za pravom bazom podataka.
+
+Evo detaljnog objašnjenja mehanizma na temelju tvog koda:
+
+1. Sučelje: ILeagueRepository
+Sučelje definira ugovor – popis metoda koje svaki repozitorij (bio on "mock" ili stvarni) mora imati.
+
+Što radi: Ono kaže kontroleru "ove metode su dostupne", ali ne određuje kako one rade.
+
+Primjer: Task<List<BoardGame>> GetAllBoardGamesAsync(); definira da svaki repozitorij mora moći vratiti listu igara asinkrono.
+
+2. Implementacija: MockLeagueRepository
+Ovo je konkretna klasa koja "ispunjava" ugovor definiran sučeljem koristeći statičke, unaprijed generirane podatke.
+
+Pohrana podataka: Unutar klase koristi se privatno polje _dashboard (tipa LeagueDashboardViewModel) koje sadrži sve podatke o timovima, igračima i mečevima.
+
+Inicijalizacija: U konstruktoru se poziva LeagueDataFactory.CreateSampleLeagueAsync().GetAwaiter().GetResult(), što puni repozitorij testnim podacima odmah pri pokretanju.
+
+Logika metoda: Umjesto upita prema bazi, metode koriste LINQ nad lokalnim listama. Na primjer:
+
+GetTeamByIdAsync(Guid id) koristi .FirstOrDefault(t => t.Id == id) da pronađe tim u listi _dashboard.AllTeams.
+
+GetAllPlayersAsync() koristi .SelectMany i .Distinct() kako bi "izvukao" jedinstvenu listu svih igrača iz svih timova.
+
+3. Asinkroni rad (Task)
+Iako su podaci već u memoriji, metode vraćaju Task (npr. Task.FromResult(_dashboard)).
+
+Zašto: Ovo simulira stvarno ponašanje baze podataka. Ako kasnije odlučiš zamijeniti MockLeagueRepository s pravim SqlLeagueRepository, nećeš morati mijenjati ni jednu liniju koda u kontrolerima jer oni već očekuju asinkrone odgovore.
+
+4. Poveznica s kontrolerima (Dependency Injection)
+Kontroleri, poput BoardGamesController, u svom konstruktoru primaju ILeagueRepository, a ne direktno MockLeagueRepository.
+
+Kako radi: ASP.NET sustav (putem Program.cs) automatski "ubrizgava" instancu mock repozitorija tamo gdje se traži sučelje.
+
+Korištenje: Unutar akcija, npr. Index(), kontroler jednostavno poziva _leagueRepository.GetAllBoardGamesAsync() i prikazuje rezultat u View-u, potpuno nesvjestan da podaci dolaze iz memorije, a ne s interneta ili diska.
+
+Ovaj pristup ti omogućuje da razvijaš i testiraš cijeli UI (UX Sub-Agent dizajn) neovisno o tome je li baza podataka spremna.
+
+Googleova pravila o privatnostiOtvara se u novom prozoru
+Googleovi uvjeti pružanja uslugeOtvara se u novom prozoru
+Vaša privatnost i Gemini aplikacijeOtvara se u novom prozoru
+Gemini može prikazivati netočne informacije, uključujući one o ljudima, pa dobro provjerite njegove odgovore.
+
