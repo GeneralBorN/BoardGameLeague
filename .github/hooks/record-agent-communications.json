@@ -1,0 +1,60 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "bash .github/hooks/scripts/log-agent-event.sh",
+        "windows": "powershell.exe -ExecutionPolicy Bypass -File .github/hooks/scripts/log-agent-event.ps1",
+        "timeout": 5
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "bash .github/hooks/scripts/log-agent-event.sh",
+        "windows": "powershell.exe -ExecutionPolicy Bypass -File .github/hooks/scripts/log-agent-event.ps1",
+        "timeout": 5
+      }
+    ],
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": "bash .github/hooks/scripts/log-agent-event.sh",
+        "windows": "powershell.exe -ExecutionPolicy Bypass -File .github/hooks/scripts/log-agent-event.ps1",
+        "timeout": 5
+      }
+    ],
+    "PostToolUse": [
+      {
+        "type": "command",
+        "command": "bash .github/hooks/scripts/log-agent-event.sh",
+        "windows": "powershell.exe -ExecutionPolicy Bypass -File .github/hooks/scripts/log-agent-event.ps1",
+        "timeout": 5
+      }
+    ],
+    "SubagentStart": [
+      {
+        "type": "command",
+        "command": "bash .github/hooks/scripts/log-agent-event.sh",
+        "windows": "powershell.exe -ExecutionPolicy Bypass -File .github/hooks/scripts/log-agent-event.ps1",
+        "timeout": 5
+      }
+    ],
+    "SubagentStop": [
+      {
+        "type": "command",
+        "command": "bash .github/hooks/scripts/log-agent-event.sh",
+        "windows": "powershell.exe -ExecutionPolicy Bypass -File .github/hooks/scripts/log-agent-event.ps1",
+        "timeout": 5
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "bash .github/hooks/scripts/log-agent-event.sh",
+        "windows": "powershell.exe -ExecutionPolicy Bypass -File .github/hooks/scripts/log-agent-event.ps1",
+        "timeout": 5
+      }
+    ]
+  }
+}

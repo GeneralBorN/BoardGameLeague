@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -17,17 +19,19 @@ namespace BoardGameLeague.Models
 
     public class Player
     {
+        [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
         public string Name { get; set; } = string.Empty;
         public int Rating { get; set; }
         public DateTime JoinedDate { get; set; }
         public string Country { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
-        public List<Team> Teams { get; set; } = new List<Team>();
+        public virtual ICollection<Team> Teams { get; set; } = new List<Team>();
     }
 
     public class BoardGame
     {
+        [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
         public string Name { get; set; } = string.Empty;
         public GameCategory Category { get; set; }
@@ -35,10 +39,12 @@ namespace BoardGameLeague.Models
         public int MaxPlayers { get; set; }
         public TimeSpan AveragePlayTime { get; set; }
         public decimal Complexity { get; set; }
+        public virtual ICollection<Match> Matches { get; set; } = new List<Match>();
     }
 
     public class Team
     {
+        [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
         public string Name { get; set; } = string.Empty;
         public string Region { get; set; } = string.Empty;
@@ -46,48 +52,70 @@ namespace BoardGameLeague.Models
         public bool IsActive { get; set; }
         public int TotalWins { get; set; }
         public int TotalLosses { get; set; }
-        public List<Player> Players { get; set; } = new List<Player>();
-        public List<Tournament> Tournaments { get; set; } = new List<Tournament>();
+        public virtual ICollection<Player> Players { get; set; } = new List<Player>();
+        public virtual ICollection<Tournament> Tournaments { get; set; } = new List<Tournament>();
 
+        [NotMapped]
         public double WinRate => (TotalWins + TotalLosses) == 0 ? 0 : (double)TotalWins / (TotalWins + TotalLosses);
     }
 
     public class Venue
     {
+        [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
         public string Name { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;
         public string Country { get; set; } = string.Empty;
         public int Capacity { get; set; }
         public bool Indoor { get; set; }
-        public List<Tournament> Tournaments { get; set; } = new List<Tournament>();
+        public virtual ICollection<Tournament> Tournaments { get; set; } = new List<Tournament>();
     }
 
     public class Tournament
     {
+        [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public Venue Venue { get; set; } = null!;
+
+        [ForeignKey("Venue")]
+        public Guid VenueId { get; set; }
+        public virtual Venue Venue { get; set; } = null!;
+
         public bool IsOpen { get; set; }
-        public List<Team> Teams { get; set; } = new List<Team>();
-        public List<Match> Matches { get; set; } = new List<Match>();
+        public virtual ICollection<Team> Teams { get; set; } = new List<Team>();
+        public virtual ICollection<Match> Matches { get; set; } = new List<Match>();
     }
 
     public class Match
     {
+        [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
-        public Tournament Tournament { get; set; } = null!;
-        public Team TeamA { get; set; } = null!;
-        public Team TeamB { get; set; } = null!;
-        public BoardGame Game { get; set; } = null!;
+
+        [ForeignKey("Tournament")]
+        public Guid TournamentId { get; set; }
+        public virtual Tournament Tournament { get; set; } = null!;
+
+        [ForeignKey("TeamA")]
+        public Guid TeamAId { get; set; }
+        public virtual Team TeamA { get; set; } = null!;
+
+        [ForeignKey("TeamB")]
+        public Guid TeamBId { get; set; }
+        public virtual Team TeamB { get; set; } = null!;
+
+        [ForeignKey("Game")]
+        public Guid GameId { get; set; }
+        public virtual BoardGame Game { get; set; } = null!;
+
         public DateTime StartTime { get; set; }
         public int ScoreA { get; set; }
         public int ScoreB { get; set; }
         public bool IsCompleted { get; set; }
 
+        [NotMapped]
         public Team Winner => ScoreA > ScoreB ? TeamA : TeamB;
     }
 
@@ -177,15 +205,33 @@ namespace BoardGameLeague.Models
             venues[2].Tournaments.Add(tournaments[2]);
 
             // assign teams to tournaments (many-to-many relationship)
-            tournaments[0].Teams.AddRange(new [] { teams[0], teams[1], teams[2] });
-            tournaments[1].Teams.AddRange(new [] { teams[2], teams[3], teams[4] });
-            tournaments[2].Teams.AddRange(new [] { teams[0], teams[4], teams[5] });
+            foreach (var team in new[] { teams[0], teams[1], teams[2] })
+            {
+                tournaments[0].Teams.Add(team);
+            }
+            foreach (var team in new[] { teams[2], teams[3], teams[4] })
+            {
+                tournaments[1].Teams.Add(team);
+            }
+            foreach (var team in new[] { teams[0], teams[4], teams[5] })
+            {
+                tournaments[2].Teams.Add(team);
+            }
 
-            teams[0].Tournaments.AddRange(new [] { tournaments[0], tournaments[2] });
+            foreach (var tournament in new[] { tournaments[0], tournaments[2] })
+            {
+                teams[0].Tournaments.Add(tournament);
+            }
             teams[1].Tournaments.Add(tournaments[0]);
-            teams[2].Tournaments.AddRange(new [] { tournaments[0], tournaments[1] });
+            foreach (var tournament in new[] { tournaments[0], tournaments[1] })
+            {
+                teams[2].Tournaments.Add(tournament);
+            }
             teams[3].Tournaments.Add(tournaments[1]);
-            teams[4].Tournaments.AddRange(new [] { tournaments[1], tournaments[2] });
+            foreach (var tournament in new[] { tournaments[1], tournaments[2] })
+            {
+                teams[4].Tournaments.Add(tournament);
+            }
             teams[5].Tournaments.Add(tournaments[2]);
 
             var matches = new List<Match>

@@ -15,17 +15,21 @@ namespace BoardGameLeague.Controllers
             _leagueRepository = leagueRepository;
         }
 
+        [Route("")]
+        [Route("dashboard")]
         public async Task<IActionResult> Index()
         {
             var model = await _leagueRepository.GetDashboardAsync();
             return View(model);
         }
 
+        [Route("privacy")]
         public IActionResult Privacy()
         {
             return View();
         }
 
+        [Route("error")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

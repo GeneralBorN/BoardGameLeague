@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace BoardGameLeague.Controllers
 {
+    [Route("games")]
     public class BoardGamesController : Controller
     {
         private readonly ILeagueRepository _leagueRepository;
@@ -14,12 +15,14 @@ namespace BoardGameLeague.Controllers
             _leagueRepository = leagueRepository;
         }
 
+        [Route("")]
         public async Task<IActionResult> Index()
         {
             var games = await _leagueRepository.GetAllBoardGamesAsync();
             return View(games);
         }
 
+        [Route("{id:guid}")]
         public async Task<IActionResult> Details(Guid id)
         {
             var game = await _leagueRepository.GetBoardGameByIdAsync(id);
