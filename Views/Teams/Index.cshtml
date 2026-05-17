@@ -11,24 +11,12 @@
         <p class="section-description">Explore the complete team roster, win rates and active lineups for every league team.</p>
     </div>
 
-    <div class="card-grid">
-        @foreach (var team in Model)
-        {
-            <article class="metric-card">
-                <div class="metric-card-top">
-                    <span class="tag">@team.Region</span>
-                    <h2>@team.Name</h2>
-                </div>
-                <div class="metric-card-body">
-                    <p>Founded: <strong>@(team.FoundedDate.ToString("yyyy-MM-dd"))</strong></p>
-                    <p>Players: <strong>@team.Players.Count</strong></p>
-                    <p>Record: <strong>@team.TotalWins-@team.TotalLosses</strong></p>
-                    <p>Win Rate: <strong>@team.WinRate.ToString("P1")</strong></p>
-                </div>
-                <div class="metric-card-footer">
-                    <a class="btn btn-outline-info" asp-action="Details" asp-route-id="@team.Id">View details</a>
-                </div>
-            </article>
-        }
-    </div>
+        <div class="search-panel d-flex flex-wrap align-items-center gap-2">
+            <input type="search" class="form-control js-search-input" data-search-url='@Url.Action("Search")' data-target="#team-search-results" placeholder="Search teams..." />
+            <a class="btn btn-primary" asp-action="Create">Create team</a>
+        </div>
+
+        <div id="team-search-results">
+            @Html.Partial("_TeamCards", Model)
+        </div>
 </div>

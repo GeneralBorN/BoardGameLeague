@@ -11,22 +11,12 @@
         <p class="section-description">See venues that host tournaments and compare capacity, city and surface type.</p>
     </div>
 
-    <div class="card-grid card-grid-small">
-        @foreach (var venue in Model)
-        {
-            <article class="metric-card compact-card">
-                <div class="metric-card-top">
-                    <span class="tag">@(venue.Indoor ? "Indoor" : "Outdoor")</span>
-                    <h2>@venue.Name</h2>
-                </div>
-                <div class="metric-card-body">
-                    <p>Location: <strong>@venue.City, @venue.Country</strong></p>
-                    <p>Capacity: <strong>@venue.Capacity</strong></p>
-                </div>
-                <div class="metric-card-footer">
-                    <a class="btn btn-outline-info" asp-action="Details" asp-route-id="@venue.Id">Details</a>
-                </div>
-            </article>
-        }
-    </div>
+        <div class="search-panel d-flex flex-wrap align-items-center gap-2">
+            <input type="search" class="form-control js-search-input" data-search-url='@Url.Action("Search")' data-target="#venue-search-results" placeholder="Search venues..." />
+            <a class="btn btn-primary" asp-action="Create">Add venue</a>
+        </div>
+
+        <div id="venue-search-results">
+            @Html.Partial("_VenueCards", Model)
+        </div>
 </div>

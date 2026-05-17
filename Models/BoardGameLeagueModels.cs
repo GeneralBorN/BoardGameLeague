@@ -21,11 +21,25 @@ namespace BoardGameLeague.Models
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
+
+        [Required]
+        [StringLength(100)]
         public string Name { get; set; } = string.Empty;
+
+        [Range(0, 3000)]
         public int Rating { get; set; }
+
+        [DataType(DataType.Date)]
         public DateTime JoinedDate { get; set; }
+
+        [Required]
+        [StringLength(50)]
         public string Country { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(50)]
         public string Role { get; set; } = string.Empty;
+
         public virtual ICollection<Team> Teams { get; set; } = new List<Team>();
     }
 
@@ -33,12 +47,34 @@ namespace BoardGameLeague.Models
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
+
+        [Required]
+        [StringLength(150)]
         public string Name { get; set; } = string.Empty;
+
+        [Required]
         public GameCategory Category { get; set; }
+
+        [Range(1, 50)]
         public int MinPlayers { get; set; }
+
+        [Range(1, 50)]
         public int MaxPlayers { get; set; }
+
+        [DataType(DataType.Duration)]
         public TimeSpan AveragePlayTime { get; set; }
+
+        [NotMapped]
+        [Range(15, 720, ErrorMessage = "Average play time must be between 15 and 720 minutes.")]
+        public int AveragePlayTimeMinutes
+        {
+            get => (int)AveragePlayTime.TotalMinutes;
+            set => AveragePlayTime = TimeSpan.FromMinutes(value);
+        }
+
+        [Range(0.1, 5.0)]
         public decimal Complexity { get; set; }
+
         public virtual ICollection<Match> Matches { get; set; } = new List<Match>();
     }
 
@@ -46,14 +82,31 @@ namespace BoardGameLeague.Models
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
+
+        [Required]
+        [StringLength(120)]
         public string Name { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(80)]
         public string Region { get; set; } = string.Empty;
+
+        [DataType(DataType.Date)]
         public DateTime FoundedDate { get; set; }
+
         public bool IsActive { get; set; }
+
+        [Range(0, 1000)]
         public int TotalWins { get; set; }
+
+        [Range(0, 1000)]
         public int TotalLosses { get; set; }
+
         public virtual ICollection<Player> Players { get; set; } = new List<Player>();
         public virtual ICollection<Tournament> Tournaments { get; set; } = new List<Tournament>();
+
+        [NotMapped]
+        public List<Guid> SelectedPlayerIds { get; set; } = new List<Guid>();
 
         [NotMapped]
         public double WinRate => (TotalWins + TotalLosses) == 0 ? 0 : (double)TotalWins / (TotalWins + TotalLosses);
@@ -63,60 +116,115 @@ namespace BoardGameLeague.Models
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
+
+        [Required]
+        [StringLength(150)]
         public string Name { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(80)]
         public string City { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(80)]
         public string Country { get; set; } = string.Empty;
+
+        [Range(1, 50000)]
         public int Capacity { get; set; }
+
         public bool Indoor { get; set; }
+
         public virtual ICollection<Tournament> Tournaments { get; set; } = new List<Tournament>();
     }
 
-    public class Tournament
+    public class Tournament : IValidatableObject
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
+
+        [Required]
+        [StringLength(150)]
         public string Name { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(1000)]
         public string Description { get; set; } = string.Empty;
+
+        [DataType(DataType.DateTime)]
         public DateTime StartDate { get; set; }
+
+        [DataType(DataType.DateTime)]
         public DateTime EndDate { get; set; }
 
         [ForeignKey("Venue")]
+        [Required]
         public Guid VenueId { get; set; }
         public virtual Venue Venue { get; set; } = null!;
 
         public bool IsOpen { get; set; }
         public virtual ICollection<Team> Teams { get; set; } = new List<Team>();
         public virtual ICollection<Match> Matches { get; set; } = new List<Match>();
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (EndDate < StartDate)
+            {
+                yield return new ValidationResult("End date must be after start date.", new[] { nameof(EndDate), nameof(StartDate) });
+            }
+        }
     }
 
-    public class Match
+    public class Match : IValidatableObject
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
 
         [ForeignKey("Tournament")]
+        [Required]
         public Guid TournamentId { get; set; }
         public virtual Tournament Tournament { get; set; } = null!;
 
         [ForeignKey("TeamA")]
+        [Required]
         public Guid TeamAId { get; set; }
         public virtual Team TeamA { get; set; } = null!;
 
         [ForeignKey("TeamB")]
+        [Required]
         public Guid TeamBId { get; set; }
         public virtual Team TeamB { get; set; } = null!;
 
         [ForeignKey("Game")]
+        [Required]
         public Guid GameId { get; set; }
         public virtual BoardGame Game { get; set; } = null!;
 
+        [DataType(DataType.DateTime)]
         public DateTime StartTime { get; set; }
+
+        [Range(0, 100)]
         public int ScoreA { get; set; }
+
+        [Range(0, 100)]
         public int ScoreB { get; set; }
+
         public bool IsCompleted { get; set; }
 
         [NotMapped]
         public Team Winner => ScoreA > ScoreB ? TeamA : TeamB;
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (TeamAId == TeamBId)
+            {
+                yield return new ValidationResult("Team A and Team B must be different.", new[] { nameof(TeamAId), nameof(TeamBId) });
+            }
+
+            if (StartTime < DateTime.Today.AddYears(-1))
+            {
+                yield return new ValidationResult("Match date must be a recent date.", new[] { nameof(StartTime) });
+            }
+        }
     }
 
     public class LeagueDashboardViewModel

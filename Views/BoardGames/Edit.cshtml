@@ -1,0 +1,54 @@
+@model BoardGameLeague.Models.BoardGame
+
+@{
+    ViewData["Title"] = "Edit Board Game";
+}
+
+<div class="section-shell py-4">
+    <div class="section-header">
+        <span class="eyebrow">Games</span>
+        <h1>Edit board game</h1>
+        <p class="section-description">Update game details such as category, player count, and complexity.</p>
+    </div>
+
+    <div class="card p-4">
+        <form asp-action="Edit" method="post" novalidate>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Category" class="form-label"></label>
+                    <select asp-for="Category" class="form-select" asp-items="ViewBag.Categories"></select>
+                    <span asp-validation-for="Category" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="MinPlayers" class="form-label"></label>
+                    <input asp-for="MinPlayers" class="form-control" />
+                    <span asp-validation-for="MinPlayers" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="MaxPlayers" class="form-label"></label>
+                    <input asp-for="MaxPlayers" class="form-control" />
+                    <span asp-validation-for="MaxPlayers" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="AveragePlayTimeMinutes" class="form-label">Play time (minutes)</label>
+                    <input asp-for="AveragePlayTimeMinutes" class="form-control" />
+                    <span asp-validation-for="AveragePlayTimeMinutes" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Complexity" class="form-label"></label>
+                    <input asp-for="Complexity" class="form-control" step="0.1" />
+                    <span asp-validation-for="Complexity" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">Save changes</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

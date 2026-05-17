@@ -1,0 +1,28 @@
+@model BoardGameLeague.Models.Player
+
+@{
+    ViewData["Title"] = "Delete Player";
+}
+
+<div class="section-shell py-4">
+    <div class="section-header">
+        <span class="eyebrow">Players</span>
+        <h1>Delete player</h1>
+        <p class="section-description">Confirm removal of this player from the league roster.</p>
+    </div>
+
+    <div class="card p-4">
+        <dl class="row">
+            <dt class="col-sm-3">Name</dt><dd class="col-sm-9">@Model.Name</dd>
+            <dt class="col-sm-3">Role</dt><dd class="col-sm-9">@Model.Role</dd>
+            <dt class="col-sm-3">Rating</dt><dd class="col-sm-9">@Model.Rating</dd>
+            <dt class="col-sm-3">Joined</dt><dd class="col-sm-9">@Model.JoinedDate.ToString("yyyy-MM-dd")</dd>
+            <dt class="col-sm-3">Country</dt><dd class="col-sm-9">@Model.Country</dd>
+        </dl>
+
+        <form asp-action="Delete" method="post">
+            <button type="submit" class="btn btn-danger">Delete</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>

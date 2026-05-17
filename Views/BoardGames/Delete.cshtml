@@ -1,0 +1,27 @@
+@model BoardGameLeague.Models.BoardGame
+
+@{
+    ViewData["Title"] = "Delete Board Game";
+}
+
+<div class="section-shell py-4">
+    <div class="section-header">
+        <span class="eyebrow">Games</span>
+        <h1>Delete board game</h1>
+        <p class="section-description">Confirm that you want to remove this game from the league library.</p>
+    </div>
+
+    <div class="card p-4">
+        <dl class="row">
+            <dt class="col-sm-3">Title</dt><dd class="col-sm-9">@Model.Name</dd>
+            <dt class="col-sm-3">Category</dt><dd class="col-sm-9">@Model.Category</dd>
+            <dt class="col-sm-3">Players</dt><dd class="col-sm-9">@Model.MinPlayers–@Model.MaxPlayers</dd>
+            <dt class="col-sm-3">Complexity</dt><dd class="col-sm-9">@Model.Complexity.ToString("F1")</dd>
+        </dl>
+
+        <form asp-action="Delete" method="post">
+            <button type="submit" class="btn btn-danger">Delete</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>

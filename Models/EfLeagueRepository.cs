@@ -103,6 +103,7 @@ namespace BoardGameLeague.Models
         public async Task<List<Player>> GetAllPlayersAsync()
         {
             return await _context.Players
+                .Include(p => p.Teams)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -110,6 +111,7 @@ namespace BoardGameLeague.Models
         public async Task<Player?> GetPlayerByIdAsync(Guid id)
         {
             return await _context.Players
+                .Include(p => p.Teams)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.Id == id);
         }

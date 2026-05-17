@@ -1,0 +1,28 @@
+@model BoardGameLeague.Models.Venue
+
+@{
+    ViewData["Title"] = "Delete Venue";
+}
+
+<div class="section-shell py-4">
+    <div class="section-header">
+        <span class="eyebrow">Venues</span>
+        <h1>Delete venue</h1>
+        <p class="section-description">Confirm removal of this venue from the league location registry.</p>
+    </div>
+
+    <div class="card p-4">
+        <dl class="row">
+            <dt class="col-sm-3">Name</dt><dd class="col-sm-9">@Model.Name</dd>
+            <dt class="col-sm-3">City</dt><dd class="col-sm-9">@Model.City</dd>
+            <dt class="col-sm-3">Country</dt><dd class="col-sm-9">@Model.Country</dd>
+            <dt class="col-sm-3">Capacity</dt><dd class="col-sm-9">@Model.Capacity</dd>
+            <dt class="col-sm-3">Indoor</dt><dd class="col-sm-9">@(Model.Indoor ? "Yes" : "No")</dd>
+        </dl>
+
+        <form asp-action="Delete" method="post">
+            <button type="submit" class="btn btn-danger">Delete</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>

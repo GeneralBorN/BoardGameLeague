@@ -1,0 +1,24 @@
+@model List<BoardGameLeague.Models.Team>
+
+<div class="card-grid">
+    @foreach (var team in Model)
+    {
+        <article class="metric-card">
+            <div class="metric-card-top">
+                <span class="tag">@team.Region</span>
+                <h2>@team.Name</h2>
+            </div>
+            <div class="metric-card-body">
+                <p>Founded: <strong>@(team.FoundedDate.ToString("yyyy-MM-dd"))</strong></p>
+                <p>Players: <strong>@team.Players.Count</strong></p>
+                <p>Record: <strong>@team.TotalWins-@team.TotalLosses</strong></p>
+                <p>Win Rate: <strong>@team.WinRate.ToString("P1")</strong></p>
+            </div>
+            <div class="metric-card-footer">
+                <a class="btn btn-outline-info" asp-action="Details" asp-route-id="@team.Id">View details</a>
+                <a class="btn btn-outline-secondary ms-2" asp-action="Edit" asp-route-id="@team.Id">Edit</a>
+                <a class="btn btn-outline-danger ms-2 btn-confirm-delete" data-entity="team" asp-action="Delete" asp-route-id="@team.Id">Delete</a>
+            </div>
+        </article>
+    }
+</div>

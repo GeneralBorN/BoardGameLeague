@@ -1,0 +1,125 @@
+@model BoardGameLeague.Models.Match
+
+@{
+    ViewData["Title"] = "Edit Match";
+}
+
+<div class="section-shell py-4">
+    <div class="section-header">
+        <span class="eyebrow">Matches</span>
+        <h1>Edit match</h1>
+        <p class="section-description">Change the match lineup, tournament or timing before the event starts.</p>
+    </div>
+
+    <div class="card p-4">
+        <form asp-action="Edit" asp-route-id="@Model.Id" method="post" novalidate>
+            <input asp-for="Id" type="hidden" />
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Team A</label>
+                    <input type="text" class="form-control js-select-filter mb-2" data-target-select="#TeamASelect" placeholder="Search team A..." />
+                    <select id="TeamASelect" name="TeamAId" class="form-select" size="6">
+                        @foreach (var opt in ViewBag.TeamOptions as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)
+                        {
+                            if (opt.Value == Model.TeamAId.ToString())
+                            {
+                                <option value="@opt.Value" selected>@opt.Text</option>
+                            }
+                            else
+                            {
+                                <option value="@opt.Value">@opt.Text</option>
+                            }
+                        }
+                    </select>
+                    <span class="text-danger field-validation-valid" data-valmsg-for="TeamAId" data-valmsg-replace="true"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Team B</label>
+                    <input type="text" class="form-control js-select-filter mb-2" data-target-select="#TeamBSelect" placeholder="Search team B..." />
+                    <select id="TeamBSelect" name="TeamBId" class="form-select" size="6">
+                        @foreach (var opt in ViewBag.TeamOptions as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)
+                        {
+                            if (opt.Value == Model.TeamBId.ToString())
+                            {
+                                <option value="@opt.Value" selected>@opt.Text</option>
+                            }
+                            else
+                            {
+                                <option value="@opt.Value">@opt.Text</option>
+                            }
+                        }
+                    </select>
+                    <span class="text-danger field-validation-valid" data-valmsg-for="TeamBId" data-valmsg-replace="true"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Board game</label>
+                    <input type="text" class="form-control js-select-filter mb-2" data-target-select="#GameSelect" placeholder="Search board game..." />
+                    <select id="GameSelect" name="GameId" class="form-select">
+                        @foreach (var opt in ViewBag.GameOptions as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)
+                        {
+                            if (opt.Value == Model.GameId.ToString())
+                            {
+                                <option value="@opt.Value" selected>@opt.Text</option>
+                            }
+                            else
+                            {
+                                <option value="@opt.Value">@opt.Text</option>
+                            }
+                        }
+                    </select>
+                    <span class="text-danger field-validation-valid" data-valmsg-for="GameId" data-valmsg-replace="true"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Tournament</label>
+                    <input type="text" class="form-control js-select-filter mb-2" data-target-select="#TournamentSelect" placeholder="Search tournament..." />
+                    <select id="TournamentSelect" name="TournamentId" class="form-select">
+                        @foreach (var opt in ViewBag.TournamentOptions as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)
+                        {
+                            if (opt.Value == Model.TournamentId.ToString())
+                            {
+                                <option value="@opt.Value" selected>@opt.Text</option>
+                            }
+                            else
+                            {
+                                <option value="@opt.Value">@opt.Text</option>
+                            }
+                        }
+                    </select>
+                    <span class="text-danger field-validation-valid" data-valmsg-for="TournamentId" data-valmsg-replace="true"></span>
+                </div>
+                <div class="col-md-6">
+                    @await Html.PartialAsync("_DateTimePicker", new BoardGameLeague.Models.DateTimePickerModel
+                    {
+                        Name = "StartTime",
+                        InputId = "MatchStartTime",
+                        Label = "Start time",
+                        Value = Model.StartTime,
+                        Placeholder = "dd.MM.yyyy HH:mm",
+                        Culture = System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName
+                    })
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="ScoreA" class="form-label"></label>
+                    <input asp-for="ScoreA" class="form-control" />
+                    <span asp-validation-for="ScoreA" class="text-danger"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="ScoreB" class="form-label"></label>
+                    <input asp-for="ScoreB" class="form-control" />
+                    <span asp-validation-for="ScoreB" class="text-danger"></span>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-check mt-3">
+                        <input asp-for="IsCompleted" class="form-check-input" />
+                        <label asp-for="IsCompleted" class="form-check-label"></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">Save match</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

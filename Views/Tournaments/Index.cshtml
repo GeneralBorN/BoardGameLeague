@@ -11,23 +11,12 @@
         <p class="section-description">Review every league tournament, venue and team lineup.</p>
     </div>
 
-    <div class="card-grid">
-        @foreach (var tournament in Model)
-        {
-            <article class="metric-card">
-                <div class="metric-card-top">
-                    <span class="tag">@(tournament.IsOpen ? "Open" : "Closed")</span>
-                    <h2>@tournament.Name</h2>
-                </div>
-                <div class="metric-card-body">
-                    <p>@tournament.Description</p>
-                    <p><strong>@(tournament.StartDate.ToString("yyyy-MM-dd"))</strong> → <strong>@(tournament.EndDate.ToString("yyyy-MM-dd"))</strong></p>
-                    <p>Venue: <strong>@tournament.Venue.Name</strong></p>
-                </div>
-                <div class="metric-card-footer">
-                    <a class="btn btn-outline-info" asp-action="Details" asp-route-id="@tournament.Id">View event</a>
-                </div>
-            </article>
-        }
-    </div>
+        <div class="search-panel d-flex flex-wrap align-items-center gap-2">
+            <input type="search" class="form-control js-search-input" data-search-url='@Url.Action("Search")' data-target="#tournament-search-results" placeholder="Search tournaments..." />
+            <a class="btn btn-primary" asp-action="Create">Create tournament</a>
+        </div>
+
+        <div id="tournament-search-results">
+            @Html.Partial("_TournamentCards", Model)
+        </div>
 </div>

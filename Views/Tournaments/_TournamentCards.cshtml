@@ -1,0 +1,23 @@
+@model List<BoardGameLeague.Models.Tournament>
+
+<div class="card-grid">
+    @foreach (var tournament in Model)
+    {
+        <article class="metric-card">
+            <div class="metric-card-top">
+                <span class="tag">@(tournament.IsOpen ? "Open" : "Closed")</span>
+                <h2>@tournament.Name</h2>
+            </div>
+            <div class="metric-card-body">
+                <p>@tournament.Description</p>
+                <p><strong>@(tournament.StartDate.ToString("yyyy-MM-dd"))</strong> → <strong>@(tournament.EndDate.ToString("yyyy-MM-dd"))</strong></p>
+                <p>Venue: <strong>@tournament.Venue.Name</strong></p>
+            </div>
+            <div class="metric-card-footer">
+                <a class="btn btn-outline-info" asp-action="Details" asp-route-id="@tournament.Id">View event</a>
+                <a class="btn btn-outline-secondary ms-2" asp-action="Edit" asp-route-id="@tournament.Id">Edit</a>
+                <a class="btn btn-outline-danger ms-2 btn-confirm-delete" data-entity="tournament" asp-action="Delete" asp-route-id="@tournament.Id">Delete</a>
+            </div>
+        </article>
+    }
+</div>

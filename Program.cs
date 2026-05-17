@@ -1,5 +1,7 @@
 using BoardGameLeague.Models;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +32,13 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("hr"),
+    SupportedCultures = new[] { new CultureInfo("hr"), new CultureInfo("en-US") },
+    SupportedUICultures = new[] { new CultureInfo("hr"), new CultureInfo("en-US") }
+});
 
 app.UseRouting();
 

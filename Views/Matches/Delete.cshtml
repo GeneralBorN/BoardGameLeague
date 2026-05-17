@@ -1,0 +1,28 @@
+@model BoardGameLeague.Models.Match
+
+@{
+    ViewData["Title"] = "Delete Match";
+}
+
+<div class="section-shell py-4">
+    <div class="section-header">
+        <span class="eyebrow">Matches</span>
+        <h1>Delete match</h1>
+        <p class="section-description">Confirm that this scheduled match should be removed from the league.</p>
+    </div>
+
+    <div class="card p-4">
+        <dl class="row">
+            <dt class="col-sm-3">Match</dt><dd class="col-sm-9">@Model.TeamA.Name vs @Model.TeamB.Name</dd>
+            <dt class="col-sm-3">Tournament</dt><dd class="col-sm-9">@Model.Tournament.Name</dd>
+            <dt class="col-sm-3">Game</dt><dd class="col-sm-9">@Model.Game.Name</dd>
+            <dt class="col-sm-3">Start</dt><dd class="col-sm-9">@Model.StartTime.ToString("yyyy-MM-dd HH:mm")</dd>
+            <dt class="col-sm-3">Score</dt><dd class="col-sm-9">@Model.ScoreA - @Model.ScoreB</dd>
+        </dl>
+
+        <form asp-action="Delete" method="post">
+            <button type="submit" class="btn btn-danger">Delete</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>

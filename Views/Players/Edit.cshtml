@@ -1,0 +1,56 @@
+@model BoardGameLeague.Models.Player
+
+@{
+    ViewData["Title"] = "Edit Player";
+}
+
+<div class="section-shell py-4">
+    <div class="section-header">
+        <span class="eyebrow">Players</span>
+        <h1>Edit player</h1>
+        <p class="section-description">Update player attributes, rating, and team assignments.</p>
+    </div>
+
+    <div class="card p-4">
+        <form asp-action="Edit" method="post" novalidate>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Rating" class="form-label"></label>
+                    <input asp-for="Rating" class="form-control" />
+                    <span asp-validation-for="Rating" class="text-danger"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Country" class="form-label"></label>
+                    <input asp-for="Country" class="form-control" />
+                    <span asp-validation-for="Country" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Role" class="form-label"></label>
+                    <input asp-for="Role" class="form-control" />
+                    <span asp-validation-for="Role" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    @await Html.PartialAsync("_DateTimePicker", new BoardGameLeague.Models.DateTimePickerModel
+                    {
+                        Name = "JoinedDate",
+                        InputId = "JoinedDate",
+                        Label = "Joined date",
+                        Value = Model.JoinedDate,
+                        Placeholder = "dd.MM.yyyy HH:mm",
+                        Culture = System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName
+                    })
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">Save changes</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

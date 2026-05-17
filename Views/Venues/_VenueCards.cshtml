@@ -1,0 +1,23 @@
+@model List<BoardGameLeague.Models.Venue>
+
+<div class="card-grid card-grid-small">
+    @foreach (var venue in Model)
+    {
+        <article class="metric-card compact-card">
+            <div class="metric-card-top">
+                <span class="tag">@venue.City</span>
+                <h2>@venue.Name</h2>
+            </div>
+            <div class="metric-card-body">
+                <p>Country: <strong>@venue.Country</strong></p>
+                <p>Capacity: <strong>@venue.Capacity</strong></p>
+                <p>Indoor: <strong>@(venue.Indoor ? "Yes" : "No")</strong></p>
+            </div>
+            <div class="metric-card-footer">
+                <a class="btn btn-outline-info" asp-action="Details" asp-route-id="@venue.Id">Details</a>
+                <a class="btn btn-outline-secondary ms-2" asp-action="Edit" asp-route-id="@venue.Id">Edit</a>
+                <a class="btn btn-outline-danger ms-2 btn-confirm-delete" data-entity="venue" asp-action="Delete" asp-route-id="@venue.Id">Delete</a>
+            </div>
+        </article>
+    }
+</div>

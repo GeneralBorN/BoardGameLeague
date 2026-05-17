@@ -1,0 +1,8 @@
+@model BoardGameLeague.Models.DateTimePickerModel
+
+<div class="mb-3 datetime-picker-field position-relative">
+    <label for="@Model.InputId" class="form-label">@Model.Label</label>
+    <input type="text" id="@Model.InputId" name="@Model.Name" class="form-control js-datetime-picker" value="@Model.FormattedValue" placeholder="@Model.Placeholder" data-culture="@Model.Culture" autocomplete="off" />
+    <span class="text-danger field-validation-valid" data-valmsg-for="@Model.Name" data-valmsg-replace="true"></span>
+    <div class="datetime-panel card shadow-sm bg-white position-absolute d-none p-3" style="z-index: 1050; min-width: 250px;"></div>
+</div>
