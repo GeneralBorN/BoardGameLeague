@@ -252,11 +252,36 @@ function initSearchableSelects() {
     }, 150));
 }
 
+function initFormAnimations() {
+    // Add animation to form inputs on focus
+    $(document).on('focus', '.form-control, .form-select', function () {
+        $(this).css('transition', 'all 0.2s ease');
+    });
+
+    // Add subtle scale animation to form buttons on hover
+    $(document).on('mouseenter', 'button[type="submit"], .btn-primary, .btn-outline-secondary, .btn-outline-danger', function () {
+        $(this).css('transition', 'all 0.2s ease');
+    });
+
+    // Add form submission animation
+    $(document).on('submit', 'form', function () {
+        var $form = $(this);
+        var $btn = $form.find('button[type="submit"]');
+        if ($btn.length) {
+            $btn.prop('disabled', true).css({
+                'opacity': '0.7',
+                'transform': 'scale(0.98)'
+            });
+        }
+    });
+}
+
 $(function () {
     initEntitySearch();
     initAutocompleteDropdowns();
     initDateTimePickers();
     initCardAnimations();
     initDeleteConfirm();
+    initFormAnimations();
     initSearchableSelects();
 });

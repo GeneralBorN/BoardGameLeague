@@ -47,8 +47,14 @@ namespace BoardGameLeague.Controllers
         [HttpGet("lookup/teams")]
         public async Task<IActionResult> LookupTeams(string q)
         {
-            var teams = await _context.Teams
-                .Where(t => string.IsNullOrEmpty(q) || t.Name.Contains(q, StringComparison.OrdinalIgnoreCase))
+            var query = _context.Teams.AsQueryable();
+            
+            if (!string.IsNullOrEmpty(q))
+            {
+                query = query.Where(t => t.Name.ToLower().Contains(q.ToLower()));
+            }
+            
+            var teams = await query
                 .OrderBy(t => t.Name)
                 .Select(t => new { id = t.Id, text = t.Name })
                 .Take(15)
@@ -60,8 +66,14 @@ namespace BoardGameLeague.Controllers
         [HttpGet("lookup/games")]
         public async Task<IActionResult> LookupGames(string q)
         {
-            var games = await _context.BoardGames
-                .Where(g => string.IsNullOrEmpty(q) || g.Name.Contains(q, StringComparison.OrdinalIgnoreCase))
+            var query = _context.BoardGames.AsQueryable();
+            
+            if (!string.IsNullOrEmpty(q))
+            {
+                query = query.Where(g => g.Name.ToLower().Contains(q.ToLower()));
+            }
+            
+            var games = await query
                 .OrderBy(g => g.Name)
                 .Select(g => new { id = g.Id, text = g.Name })
                 .Take(15)
@@ -73,8 +85,14 @@ namespace BoardGameLeague.Controllers
         [HttpGet("lookup/tournaments")]
         public async Task<IActionResult> LookupTournaments(string q)
         {
-            var tournaments = await _context.Tournaments
-                .Where(t => string.IsNullOrEmpty(q) || t.Name.Contains(q, StringComparison.OrdinalIgnoreCase))
+            var query = _context.Tournaments.AsQueryable();
+            
+            if (!string.IsNullOrEmpty(q))
+            {
+                query = query.Where(t => t.Name.ToLower().Contains(q.ToLower()));
+            }
+            
+            var tournaments = await query
                 .OrderBy(t => t.Name)
                 .Select(t => new { id = t.Id, text = t.Name })
                 .Take(15)
@@ -167,7 +185,12 @@ namespace BoardGameLeague.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditPost(Guid id)
         {
-            var match = await _context.Matches.FindAsync(id);
+            var match = await _context.Matches
+                .Include(m => m.TeamA)
+                .Include(m => m.TeamB)
+                .Include(m => m.Game)
+                .Include(m => m.Tournament)
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (match == null)
             {
                 return NotFound();

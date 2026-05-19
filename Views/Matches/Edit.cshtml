@@ -16,76 +16,56 @@
             <input asp-for="Id" type="hidden" />
             <div class="row g-3">
                 <div class="col-md-6">
-                    <label class="form-label">Team A</label>
-                    <input type="text" class="form-control js-select-filter mb-2" data-target-select="#TeamASelect" placeholder="Search team A..." />
-                    <select id="TeamASelect" name="TeamAId" class="form-select" size="6">
-                        @foreach (var opt in ViewBag.TeamOptions as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)
-                        {
-                            if (opt.Value == Model.TeamAId.ToString())
-                            {
-                                <option value="@opt.Value" selected>@opt.Text</option>
-                            }
-                            else
-                            {
-                                <option value="@opt.Value">@opt.Text</option>
-                            }
-                        }
-                    </select>
-                    <span class="text-danger field-validation-valid" data-valmsg-for="TeamAId" data-valmsg-replace="true"></span>
+                    @await Html.PartialAsync("_AutocompleteDropdown", new BoardGameLeague.Models.AutocompleteDropdownModel
+                    {
+                        Name = "TeamAId",
+                        InputId = "TeamAInput",
+                        HiddenInputId = "TeamAIdHidden",
+                        DisplayText = ViewBag.TeamA ?? string.Empty,
+                        Label = "Team A",
+                        Placeholder = "Search team A...",
+                        SearchUrl = "/matches/lookup/teams",
+                        SelectedValue = Model.TeamAId != Guid.Empty ? Model.TeamAId : null
+                    })
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label">Team B</label>
-                    <input type="text" class="form-control js-select-filter mb-2" data-target-select="#TeamBSelect" placeholder="Search team B..." />
-                    <select id="TeamBSelect" name="TeamBId" class="form-select" size="6">
-                        @foreach (var opt in ViewBag.TeamOptions as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)
-                        {
-                            if (opt.Value == Model.TeamBId.ToString())
-                            {
-                                <option value="@opt.Value" selected>@opt.Text</option>
-                            }
-                            else
-                            {
-                                <option value="@opt.Value">@opt.Text</option>
-                            }
-                        }
-                    </select>
-                    <span class="text-danger field-validation-valid" data-valmsg-for="TeamBId" data-valmsg-replace="true"></span>
+                    @await Html.PartialAsync("_AutocompleteDropdown", new BoardGameLeague.Models.AutocompleteDropdownModel
+                    {
+                        Name = "TeamBId",
+                        InputId = "TeamBInput",
+                        HiddenInputId = "TeamBIdHidden",
+                        DisplayText = ViewBag.TeamB ?? string.Empty,
+                        Label = "Team B",
+                        Placeholder = "Search team B...",
+                        SearchUrl = "/matches/lookup/teams",
+                        SelectedValue = Model.TeamBId != Guid.Empty ? Model.TeamBId : null
+                    })
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label">Board game</label>
-                    <input type="text" class="form-control js-select-filter mb-2" data-target-select="#GameSelect" placeholder="Search board game..." />
-                    <select id="GameSelect" name="GameId" class="form-select">
-                        @foreach (var opt in ViewBag.GameOptions as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)
-                        {
-                            if (opt.Value == Model.GameId.ToString())
-                            {
-                                <option value="@opt.Value" selected>@opt.Text</option>
-                            }
-                            else
-                            {
-                                <option value="@opt.Value">@opt.Text</option>
-                            }
-                        }
-                    </select>
-                    <span class="text-danger field-validation-valid" data-valmsg-for="GameId" data-valmsg-replace="true"></span>
+                    @await Html.PartialAsync("_AutocompleteDropdown", new BoardGameLeague.Models.AutocompleteDropdownModel
+                    {
+                        Name = "GameId",
+                        InputId = "GameInput",
+                        HiddenInputId = "GameIdHidden",
+                        DisplayText = ViewBag.Game ?? string.Empty,
+                        Label = "Board game",
+                        Placeholder = "Search board game...",
+                        SearchUrl = "/matches/lookup/games",
+                        SelectedValue = Model.GameId != Guid.Empty ? Model.GameId : null
+                    })
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label">Tournament</label>
-                    <input type="text" class="form-control js-select-filter mb-2" data-target-select="#TournamentSelect" placeholder="Search tournament..." />
-                    <select id="TournamentSelect" name="TournamentId" class="form-select">
-                        @foreach (var opt in ViewBag.TournamentOptions as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)
-                        {
-                            if (opt.Value == Model.TournamentId.ToString())
-                            {
-                                <option value="@opt.Value" selected>@opt.Text</option>
-                            }
-                            else
-                            {
-                                <option value="@opt.Value">@opt.Text</option>
-                            }
-                        }
-                    </select>
-                    <span class="text-danger field-validation-valid" data-valmsg-for="TournamentId" data-valmsg-replace="true"></span>
+                    @await Html.PartialAsync("_AutocompleteDropdown", new BoardGameLeague.Models.AutocompleteDropdownModel
+                    {
+                        Name = "TournamentId",
+                        InputId = "TournamentInput",
+                        HiddenInputId = "TournamentIdHidden",
+                        DisplayText = ViewBag.Tournament ?? string.Empty,
+                        Label = "Tournament",
+                        Placeholder = "Search tournament...",
+                        SearchUrl = "/matches/lookup/tournaments",
+                        SelectedValue = Model.TournamentId != Guid.Empty ? Model.TournamentId : null
+                    })
                 </div>
                 <div class="col-md-6">
                     @await Html.PartialAsync("_DateTimePicker", new BoardGameLeague.Models.DateTimePickerModel

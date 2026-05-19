@@ -21,9 +21,17 @@
                     <span asp-validation-for="Name" class="text-danger"></span>
                 </div>
                 <div class="col-md-6">
-                    <label asp-for="VenueId" class="form-label">Venue</label>
-                    <select asp-for="VenueId" class="form-select" asp-items="ViewBag.Venues"></select>
-                    <span asp-validation-for="VenueId" class="text-danger"></span>
+                    @await Html.PartialAsync("_AutocompleteDropdown", new BoardGameLeague.Models.AutocompleteDropdownModel
+                    {
+                        Name = "VenueId",
+                        InputId = "VenueInput",
+                        HiddenInputId = "VenueIdHidden",
+                        DisplayText = ViewBag.Venue ?? string.Empty,
+                        Label = "Venue",
+                        Placeholder = "Search venue...",
+                        SearchUrl = "/tournaments/lookup/venues",
+                        SelectedValue = Model.VenueId != Guid.Empty ? Model.VenueId : null
+                    })
                 </div>
                 <div class="col-12">
                     <label asp-for="Description" class="form-label"></label>

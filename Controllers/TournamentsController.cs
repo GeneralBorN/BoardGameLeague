@@ -43,6 +43,25 @@ namespace BoardGameLeague.Controllers
             return PartialView("_TournamentCards", tournaments);
         }
 
+        [HttpGet("lookup/venues")]
+        public async Task<IActionResult> LookupVenues(string q)
+        {
+            var query = _context.Venues.AsQueryable();
+            
+            if (!string.IsNullOrEmpty(q))
+            {
+                query = query.Where(v => v.Name.ToLower().Contains(q.ToLower()));
+            }
+            
+            var venues = await query
+                .OrderBy(v => v.Name)
+                .Select(v => new { id = v.Id, text = v.Name })
+                .Take(15)
+                .ToListAsync();
+
+            return Json(venues);
+        }
+
         private async Task PopulateVenuesAsync(Guid? selectedId = null)
         {
             var venues = await _leagueRepository.GetAllVenuesAsync();
@@ -92,6 +111,8 @@ namespace BoardGameLeague.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            var venue = await _context.Venues.FindAsync(tournament.VenueId);
+            ViewBag.Venue = venue?.Name ?? string.Empty;
             await PopulateVenuesAsync(tournament.VenueId);
             return View(tournament);
         }
@@ -99,12 +120,13 @@ namespace BoardGameLeague.Controllers
         [HttpGet("{id:guid}/edit")]
         public async Task<IActionResult> Edit(Guid id)
         {
-            var tournament = await _context.Tournaments.FindAsync(id);
+            var tournament = await _context.Tournaments.Include(t => t.Venue).FirstOrDefaultAsync(t => t.Id == id);
             if (tournament == null)
             {
                 return NotFound();
             }
 
+            ViewBag.Venue = tournament.Venue?.Name ?? string.Empty;
             await PopulateVenuesAsync(tournament.VenueId);
             return View(tournament);
         }
@@ -114,7 +136,7 @@ namespace BoardGameLeague.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditPost(Guid id)
         {
-            var tournament = await _context.Tournaments.FindAsync(id);
+            var tournament = await _context.Tournaments.Include(t => t.Venue).FirstOrDefaultAsync(t => t.Id == id);
             if (tournament == null)
             {
                 return NotFound();
@@ -141,6 +163,7 @@ namespace BoardGameLeague.Controllers
                 }
             }
 
+            ViewBag.Venue = tournament.Venue?.Name ?? string.Empty;
             await PopulateVenuesAsync(tournament.VenueId);
             return View(tournament);
         }
