@@ -77,30 +77,54 @@ namespace BoardGameLeague.Controllers
 
         [HttpPost("create")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Tournament tournament)
+        public async Task<IActionResult> Create([Bind("Name,Description,StartDate,EndDate,IsOpen")] Tournament tournament)
         {
             // parse date strings from the custom datepicker inputs if present
             if (Request.Form.TryGetValue("StartDate", out var startVal))
             {
-                if (TryParseAnyDate(startVal, out var dt)) tournament.StartDate = dt;
-                else ModelState.AddModelError("StartDate", "Invalid start date format.");
-                // remove any previous modelstate error created by binder if we successfully parsed
-            if (TryParseAnyDate(startVal, out var parsedStart))
-            {
-                ModelState.Remove("StartDate");
-                tournament.StartDate = parsedStart;
-            }
+                if (TryParseAnyDate(startVal, out var parsedStart))
+                {
+                    tournament.StartDate = parsedStart;
+                    ModelState.Remove("StartDate");
+                }
+                else
+                {
+                    ModelState.AddModelError("StartDate", "Invalid start date format.");
+                }
             }
 
             if (Request.Form.TryGetValue("EndDate", out var endVal))
             {
-                if (TryParseAnyDate(endVal, out var dt2)) tournament.EndDate = dt2;
-                else ModelState.AddModelError("EndDate", "Invalid end date format.");
-            if (TryParseAnyDate(endVal, out var parsedEnd))
-            {
-                ModelState.Remove("EndDate");
-                tournament.EndDate = parsedEnd;
+                if (TryParseAnyDate(endVal, out var parsedEnd))
+                {
+                    tournament.EndDate = parsedEnd;
+                    ModelState.Remove("EndDate");
+                }
+                else
+                {
+                    ModelState.AddModelError("EndDate", "Invalid end date format.");
+                }
             }
+
+            if (Request.Form.TryGetValue("VenueId", out var venueIdValue) && Guid.TryParse(venueIdValue.ToString(), out var parsedVenueId) && parsedVenueId != Guid.Empty)
+            {
+                tournament.VenueId = parsedVenueId;
+                ClearVenueIdModelState();
+            }
+            else if (tournament.VenueId == Guid.Empty && Request.Form.TryGetValue("VenueInput", out var venueInput) && !string.IsNullOrWhiteSpace(venueInput))
+            {
+                var normalizedVenueInput = venueInput.ToString().Trim();
+                var matchedVenue = await _context.Venues
+                    .FirstOrDefaultAsync(v => v.Name.Equals(normalizedVenueInput, StringComparison.OrdinalIgnoreCase));
+                if (matchedVenue != null)
+                {
+                    tournament.VenueId = matchedVenue.Id;
+                    ClearVenueIdModelState();
+                }
+                else
+                {
+                    ModelState.AddModelError("VenueId", "Please select a venue from the list.");
+                }
             }
 
             if (ModelState.IsValid)
@@ -112,7 +136,19 @@ namespace BoardGameLeague.Controllers
             }
 
             var venue = await _context.Venues.FindAsync(tournament.VenueId);
-            ViewBag.Venue = venue?.Name ?? string.Empty;
+            if (tournament.VenueId != Guid.Empty)
+            {
+                ViewBag.Venue = venue?.Name ?? string.Empty;
+            }
+            else if (Request.Form.TryGetValue("VenueInput", out var venueText))
+            {
+                ViewBag.Venue = venueText.ToString();
+            }
+            else
+            {
+                ViewBag.Venue = string.Empty;
+            }
+
             await PopulateVenuesAsync(tournament.VenueId);
             return View(tournament);
         }
@@ -144,17 +180,52 @@ namespace BoardGameLeague.Controllers
             // attempt to bind posted date strings from custom picker
             if (Request.Form.TryGetValue("StartDate", out var startVal))
             {
-                if (TryParseAnyDate(startVal, out var dt)) tournament.StartDate = dt;
-                else ModelState.AddModelError("StartDate", "Invalid start date format.");
+                if (TryParseAnyDate(startVal, out var parsedStart))
+                {
+                    tournament.StartDate = parsedStart;
+                    ModelState.Remove("StartDate");
+                }
+                else
+                {
+                    ModelState.AddModelError("StartDate", "Invalid start date format.");
+                }
             }
 
             if (Request.Form.TryGetValue("EndDate", out var endVal))
             {
-                if (TryParseAnyDate(endVal, out var dt2)) tournament.EndDate = dt2;
-                else ModelState.AddModelError("EndDate", "Invalid end date format.");
+                if (TryParseAnyDate(endVal, out var parsedEnd))
+                {
+                    tournament.EndDate = parsedEnd;
+                    ModelState.Remove("EndDate");
+                }
+                else
+                {
+                    ModelState.AddModelError("EndDate", "Invalid end date format.");
+                }
             }
 
-            if (await TryUpdateModelAsync(tournament, "", t => t.Name, t => t.Description, t => t.VenueId, t => t.IsOpen))
+            if (Request.Form.TryGetValue("VenueId", out var venueIdValue) && Guid.TryParse(venueIdValue.ToString(), out var parsedVenueId) && parsedVenueId != Guid.Empty)
+            {
+                tournament.VenueId = parsedVenueId;
+                ClearVenueIdModelState();
+            }
+            else if (tournament.VenueId == Guid.Empty && Request.Form.TryGetValue("VenueInput", out var venueInput) && !string.IsNullOrWhiteSpace(venueInput))
+            {
+                var normalizedVenueInput = venueInput.ToString().Trim();
+                var matchedVenue = await _context.Venues
+                    .FirstOrDefaultAsync(v => v.Name.Equals(normalizedVenueInput, StringComparison.OrdinalIgnoreCase));
+                if (matchedVenue != null)
+                {
+                    tournament.VenueId = matchedVenue.Id;
+                    ClearVenueIdModelState();
+                }
+                else
+                {
+                    ModelState.AddModelError("VenueId", "Please select a venue from the list.");
+                }
+            }
+
+            if (await TryUpdateModelAsync(tournament, "", t => t.Name, t => t.Description, t => t.IsOpen))
             {
                 if (ModelState.IsValid)
                 {
@@ -163,9 +234,26 @@ namespace BoardGameLeague.Controllers
                 }
             }
 
-            ViewBag.Venue = tournament.Venue?.Name ?? string.Empty;
+            if (tournament.VenueId != Guid.Empty)
+            {
+                ViewBag.Venue = tournament.Venue?.Name ?? string.Empty;
+            }
+            else if (Request.Form.TryGetValue("VenueInput", out var venueText))
+            {
+                ViewBag.Venue = venueText.ToString();
+            }
+            else
+            {
+                ViewBag.Venue = string.Empty;
+            }
             await PopulateVenuesAsync(tournament.VenueId);
             return View(tournament);
+        }
+
+        private void ClearVenueIdModelState()
+        {
+            ModelState.Remove("VenueId");
+            ModelState.Remove("Tournament.VenueId");
         }
 
         private static bool TryParseAnyDate(string? text, out DateTime value)

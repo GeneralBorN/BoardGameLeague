@@ -48,6 +48,7 @@
                     </ul>
                         <hr />
                         <form asp-action="AddToTeams" asp-route-id="@Model.Id" method="post">
+                            @Html.AntiForgeryToken()
                             <label class="form-label">Manage team memberships</label>
                             <select name="SelectedTeamIds" class="form-select" multiple size="6">
                                     @foreach (var opt in ViewBag.AllTeams as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)

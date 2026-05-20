@@ -12,12 +12,14 @@
     </div>
 
     <div class="card p-4">
-        <form asp-action="Edit" asp-route-id="@Model.Id" method="post" novalidate>
+        <form asp-action="Edit" asp-route-id="@Model.Id" method="post" autocomplete="off" novalidate>
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(false, "", new { @class = "text-danger mb-3" })
             <input asp-for="Id" type="hidden" />
             <div class="row g-3">
                 <div class="col-md-6">
                     <label asp-for="Name" class="form-label"></label>
-                    <input asp-for="Name" class="form-control" />
+                    <input asp-for="Name" class="form-control" autocomplete="off" />
                     <span asp-validation-for="Name" class="text-danger"></span>
                 </div>
                 <div class="col-md-6">
@@ -35,7 +37,7 @@
                 </div>
                 <div class="col-12">
                     <label asp-for="Description" class="form-label"></label>
-                    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                    <textarea asp-for="Description" class="form-control" rows="4" autocomplete="off"></textarea>
                     <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
                 <div class="col-md-6">

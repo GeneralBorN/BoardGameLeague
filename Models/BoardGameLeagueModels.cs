@@ -4,6 +4,8 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace BoardGameLeague.Models
 {
@@ -159,6 +161,9 @@ namespace BoardGameLeague.Models
         [ForeignKey("Venue")]
         [Required]
         public Guid VenueId { get; set; }
+
+        [BindNever]
+        [ValidateNever]
         public virtual Venue Venue { get; set; } = null!;
 
         public bool IsOpen { get; set; }

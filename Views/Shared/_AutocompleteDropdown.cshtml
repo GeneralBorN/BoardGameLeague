@@ -3,10 +3,10 @@
 <div class="mb-3 autocomplete-control position-relative" data-search-url='@Model.SearchUrl'>
     <label for="@Model.InputId" class="form-label">@Model.Label</label>
     <div class="input-group">
-        <input type="text" id="@Model.InputId" class="form-control autocomplete-input" autocomplete="off" value="@Model.DisplayText" placeholder="@Model.Placeholder" data-hidden-input="@Model.HiddenInputId" />
+        <input type="text" id="@Model.InputId" name="@Model.InputId" class="form-control autocomplete-input" autocomplete="off" value="@Model.DisplayText" placeholder="@Model.Placeholder" data-hidden-input="@Model.HiddenInputId" />
         <button type="button" class="btn btn-outline-secondary btn-clear-autocomplete" aria-label="Clear selection" data-hidden-input="@Model.HiddenInputId">×</button>
     </div>
-    <input type="hidden" id="@Model.HiddenInputId" name="@Model.Name" value="@(Model.SelectedValue?.ToString() ?? string.Empty)" />
+    <input type="hidden" id="@Model.HiddenInputId" name="@Model.Name" autocomplete="off" value="@(Model.SelectedValue?.ToString() ?? string.Empty)" />
     <div class="autocomplete-results list-group position-absolute d-none"></div>
     <span class="text-danger field-validation-valid" data-valmsg-for="@Model.Name" data-valmsg-replace="true"></span>
 </div>
