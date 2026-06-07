@@ -1,7 +1,9 @@
 using BoardGameLeague.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,15 +13,44 @@ builder.Services.AddDbContext<BoardGameLeagueDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("BoardGameLeagueDbContext")));
 builder.Services.AddScoped<ILeagueRepository, EfLeagueRepository>();
 
+builder.Services.AddDefaultIdentity<AppUser>(options =>
+    {
+        options.SignIn.RequireConfirmedAccount = false;
+        options.User.RequireUniqueEmail = true;
+        options.Password.RequireDigit = false;
+        options.Password.RequireLowercase = false;
+        options.Password.RequireUppercase = false;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequiredLength = 6;
+    })
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<BoardGameLeagueDbContext>();
+
+var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
+var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(googleClientSecret))
+{
+    builder.Services.AddAuthentication()
+        .AddGoogle(options =>
+        {
+            options.ClientId = googleClientId;
+            options.ClientSecret = googleClientSecret;
+        });
+}
+builder.Services.AddRazorPages();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<BoardGameLeagueDbContext>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
     dbContext.Database.Migrate();
     await SeedDatabaseAsync(dbContext, logger);
+    await SeedIdentityAsync(userManager, roleManager, logger);
 }
 
 // Configure the HTTP request pipeline.
@@ -41,12 +72,14 @@ app.UseRequestLocalization(new RequestLocalizationOptions
 });
 
 app.UseRouting();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapRazorPages();
 
 app.Run();
 
@@ -101,5 +134,46 @@ static async Task ValidateSeedDataAsync(BoardGameLeagueDbContext context, ILogge
     else
     {
         logger.LogInformation("Seed data validation passed: all matches have complete game, team, tournament, and venue relations.");
+    }
+}
+
+static async Task SeedIdentityAsync(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, ILogger logger)
+{
+    var roles = new[] { "Admin", "Manager" };
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            var result = await roleManager.CreateAsync(new IdentityRole(role));
+            if (!result.Succeeded)
+            {
+                logger.LogWarning("Failed to create role {Role}: {Errors}", role, string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
+        }
+    }
+
+    var adminEmail = "admin@boardgameleague.local";
+    var adminUser = await userManager.FindByEmailAsync(adminEmail);
+    if (adminUser == null)
+    {
+        adminUser = new AppUser
+        {
+            UserName = adminEmail,
+            Email = adminEmail,
+            OIB = "00000000000",
+            JMBG = "0000000000",
+            EmailConfirmed = true
+        };
+
+        var createResult = await userManager.CreateAsync(adminUser, "Admin123!");
+        if (!createResult.Succeeded)
+        {
+            logger.LogWarning("Failed to create default admin user: {Errors}", string.Join(", ", createResult.Errors.Select(e => e.Description)));
+        }
+    }
+
+    if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
+    {
+        await userManager.AddToRoleAsync(adminUser, "Admin");
     }
 }

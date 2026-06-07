@@ -1,8 +1,9 @@
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace BoardGameLeague.Models
 {
-    public class BoardGameLeagueDbContext : DbContext
+    public class BoardGameLeagueDbContext : IdentityDbContext<AppUser>
     {
         public BoardGameLeagueDbContext(DbContextOptions<BoardGameLeagueDbContext> options)
             : base(options)
@@ -15,6 +16,7 @@ namespace BoardGameLeague.Models
         public DbSet<Venue> Venues { get; set; } = null!;
         public DbSet<Tournament> Tournaments { get; set; } = null!;
         public DbSet<Match> Matches { get; set; } = null!;
+        public DbSet<Attachment> Attachments { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -50,13 +52,19 @@ namespace BoardGameLeague.Models
                 .HasForeignKey(m => m.GameId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Tournament>()
+                .HasMany(t => t.Teams)
+                .WithMany(t => t.Tournaments);
+
+            modelBuilder.Entity<Attachment>()
+                .HasOne(a => a.Tournament)
+                .WithMany(t => t.Attachments)
+                .HasForeignKey(a => a.TournamentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<BoardGame>()
                 .Property(b => b.Complexity)
                 .HasPrecision(4, 2);
-
-            modelBuilder.Entity<Team>()
-                .HasMany(t => t.Tournaments)
-                .WithMany(t => t.Teams);
         }
     }
 }

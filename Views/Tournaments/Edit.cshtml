@@ -74,5 +74,64 @@
                 <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
             </div>
         </form>
+        <div class="mt-5">
+            <h4>Attachments</h4>
+            <form id="attachmentForm" enctype="multipart/form-data" class="mb-3">
+                <div class="input-group">
+                    <input id="attachmentFile" name="file" type="file" class="form-control" />
+                    <button type="submit" class="btn btn-secondary">Upload</button>
+                </div>
+                <div id="attachmentResult" class="form-text text-danger"></div>
+            </form>
+            <div id="attachmentList"></div>
+        </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        async function loadAttachments() {
+            const response = await fetch(`/tournaments/${encodeURIComponent('@Model.Id')}/attachments`);
+            if (response.ok) {
+                document.getElementById('attachmentList').innerHTML = await response.text();
+            }
+        }
+
+        async function deleteAttachment(id) {
+            if (!confirm('Delete this attachment?')) {
+                return;
+            }
+            const response = await fetch('/tournaments/attachments/' + id, {
+                method: 'DELETE'
+            });
+            if (response.ok) {
+                loadAttachments();
+            }
+        }
+
+        document.getElementById('attachmentForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const fileInput = document.getElementById('attachmentFile');
+            const file = fileInput.files[0];
+            if (!file) {
+                document.getElementById('attachmentResult').textContent = 'Select a file to upload.';
+                return;
+            }
+            const formData = new FormData();
+            formData.append('file', file);
+            const response = await fetch(`/tournaments/${encodeURIComponent('@Model.Id')}/attachments`, {
+                method: 'POST',
+                body: formData
+            });
+            if (response.ok) {
+                fileInput.value = '';
+                document.getElementById('attachmentResult').textContent = '';
+                loadAttachments();
+            } else {
+                document.getElementById('attachmentResult').textContent = 'Upload failed.';
+            }
+        });
+
+        loadAttachments();
+    </script>
+}

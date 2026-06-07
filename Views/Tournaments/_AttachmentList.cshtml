@@ -1,0 +1,41 @@
+@model IEnumerable<BoardGameLeague.Models.Attachment>
+
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th>File</th>
+            <th>Size</th>
+            <th>Uploaded</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var attachment in Model)
+        {
+            <tr>
+                <td><a href="@attachment.FilePath" target="_blank">@attachment.FileName</a></td>
+                <td>@FormatBytes(attachment.FileSize)</td>
+                <td>@attachment.CreatedAt.ToString("g")</td>
+                <td>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <button type="button" class="btn btn-sm btn-danger" onclick="deleteAttachment(@attachment.Id)">Delete</button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@functions {
+    private static string FormatBytes(long bytes)
+    {
+        if (bytes < 1024) return bytes + " B";
+        var kb = bytes / 1024.0;
+        if (kb < 1024) return kb.ToString("0.#") + " KB";
+        var mb = kb / 1024.0;
+        if (mb < 1024) return mb.ToString("0.#") + " MB";
+        var gb = mb / 1024.0;
+        return gb.ToString("0.#") + " GB";
+    }
+}

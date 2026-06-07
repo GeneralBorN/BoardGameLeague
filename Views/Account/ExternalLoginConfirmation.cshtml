@@ -1,0 +1,37 @@
+@model BoardGameLeague.Models.ExternalLoginConfirmationViewModel
+
+@{
+    ViewData["Title"] = "Complete registration";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+        <div class="card p-4 shadow-sm">
+            <h2 class="mb-3">Complete external login</h2>
+            <form asp-action="ExternalLoginConfirmation" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                <input asp-for="LoginProvider" type="hidden" />
+                <input asp-for="ReturnUrl" type="hidden" />
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control" readonly />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="OIB" class="form-label"></label>
+                    <input asp-for="OIB" class="form-control" />
+                    <span asp-validation-for="OIB" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="JMBG" class="form-label"></label>
+                    <input asp-for="JMBG" class="form-control" />
+                    <span asp-validation-for="JMBG" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-primary">Complete registration</button>
+            </form>
+        </div>
+    </div>
+</div>

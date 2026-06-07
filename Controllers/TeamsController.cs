@@ -2,12 +2,14 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using BoardGameLeague.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace BoardGameLeague.Controllers
 {
+    [Authorize]
     [Route("teams")]
     public class TeamsController : Controller
     {
@@ -20,6 +22,7 @@ namespace BoardGameLeague.Controllers
             _context = context;
         }
 
+        [AllowAnonymous]
         [Route("")]
         public async Task<IActionResult> Index()
         {
@@ -27,6 +30,7 @@ namespace BoardGameLeague.Controllers
             return View(teams);
         }
 
+        [AllowAnonymous]
         [Route("search")]
         public async Task<IActionResult> Search(string q)
         {
@@ -51,6 +55,7 @@ namespace BoardGameLeague.Controllers
             ViewBag.Players = new MultiSelectList(players, "Id", "Name", selectedIds);
         }
 
+        [Authorize(Roles = "Admin,Manager")]
         [HttpGet("create")]
         public async Task<IActionResult> Create()
         {
@@ -58,6 +63,7 @@ namespace BoardGameLeague.Controllers
             return View(new Team { FoundedDate = DateTime.Today, IsActive = true });
         }
 
+        [Authorize(Roles = "Admin,Manager")]
         [HttpPost("create")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Team team)
@@ -81,6 +87,7 @@ namespace BoardGameLeague.Controllers
             return View(team);
         }
 
+        [Authorize(Roles = "Admin,Manager")]
         [HttpGet("{id:guid}/edit")]
         public async Task<IActionResult> Edit(Guid id)
         {
@@ -96,6 +103,7 @@ namespace BoardGameLeague.Controllers
             return View(team);
         }
 
+        [Authorize(Roles = "Admin,Manager")]
         [HttpPost("{id:guid}/edit")]
         [ActionName("Edit")]
         [ValidateAntiForgeryToken]
@@ -134,6 +142,7 @@ namespace BoardGameLeague.Controllers
             return View(team);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("{id:guid}/delete")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -146,6 +155,7 @@ namespace BoardGameLeague.Controllers
             return View(team);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("{id:guid}/delete"), ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
@@ -161,6 +171,7 @@ namespace BoardGameLeague.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [AllowAnonymous]
         [Route("{id:guid}")]
         public async Task<IActionResult> Details(Guid id)
         {

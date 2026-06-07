@@ -115,6 +115,12 @@ a:focus {
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.20);
 }
 
+/* Ensure cards and detail panels have breathing room between them */
+.card,
+.detail-panel {
+  margin-bottom: 1.25rem;
+}
+
 .card-header,
 .table thead th {
   background: linear-gradient(180deg, rgba(17, 24, 39, 0.95), rgba(31, 41, 55, 0.95));

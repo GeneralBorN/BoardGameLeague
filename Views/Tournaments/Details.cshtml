@@ -61,6 +61,41 @@
                     </ul>
                 </div>
             </div>
+            <div class="card detail-panel">
+                <div class="card-header">Attachments</div>
+                <div class="card-body">
+                    <div id="attachmentList">Loading attachments&hellip;</div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        async function loadAttachments() {
+            const response = await fetch(`/tournaments/${encodeURIComponent('@Model.Id')}/attachments`);
+            if (response.ok) {
+                document.getElementById('attachmentList').innerHTML = await response.text();
+            } else {
+                document.getElementById('attachmentList').textContent = 'Failed to load attachments.';
+            }
+        }
+
+        async function deleteAttachment(id) {
+            if (!confirm('Delete this attachment?')) {
+                return;
+            }
+            const response = await fetch('/tournaments/attachments/' + id, {
+                method: 'DELETE'
+            });
+            if (response.ok) {
+                loadAttachments();
+            } else {
+                alert('Failed to delete attachment.');
+            }
+        }
+
+        loadAttachments();
+    </script>
+}

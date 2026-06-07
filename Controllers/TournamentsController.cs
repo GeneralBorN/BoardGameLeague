@@ -1,7 +1,10 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using BoardGameLeague.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +23,7 @@ namespace BoardGameLeague.Controllers
             _context = context;
         }
 
+        [AllowAnonymous]
         [Route("")]
         public async Task<IActionResult> Index()
         {
@@ -27,6 +31,7 @@ namespace BoardGameLeague.Controllers
             return View(tournaments);
         }
 
+        [AllowAnonymous]
         [Route("search")]
         public async Task<IActionResult> Search(string q)
         {
@@ -43,6 +48,7 @@ namespace BoardGameLeague.Controllers
             return PartialView("_TournamentCards", tournaments);
         }
 
+        [AllowAnonymous]
         [HttpGet("lookup/venues")]
         public async Task<IActionResult> LookupVenues(string q)
         {
@@ -68,6 +74,7 @@ namespace BoardGameLeague.Controllers
             ViewBag.Venues = new SelectList(venues, "Id", "Name", selectedId);
         }
 
+        [Authorize(Roles = "Admin,Manager")]
         [HttpGet("create")]
         public async Task<IActionResult> Create()
         {
@@ -75,6 +82,7 @@ namespace BoardGameLeague.Controllers
             return View(new Tournament { StartDate = DateTime.Today.AddDays(1), EndDate = DateTime.Today.AddDays(2), IsOpen = true });
         }
 
+        [Authorize(Roles = "Admin,Manager")]
         [HttpPost("create")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Name,Description,StartDate,EndDate,IsOpen")] Tournament tournament)
@@ -153,6 +161,7 @@ namespace BoardGameLeague.Controllers
             return View(tournament);
         }
 
+        [Authorize(Roles = "Admin,Manager")]
         [HttpGet("{id:guid}/edit")]
         public async Task<IActionResult> Edit(Guid id)
         {
@@ -167,6 +176,7 @@ namespace BoardGameLeague.Controllers
             return View(tournament);
         }
 
+        [Authorize(Roles = "Admin,Manager")]
         [HttpPost("{id:guid}/edit")]
         [ActionName("Edit")]
         [ValidateAntiForgeryToken]
@@ -283,6 +293,7 @@ namespace BoardGameLeague.Controllers
             return false;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("{id:guid}/delete")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -295,6 +306,7 @@ namespace BoardGameLeague.Controllers
             return View(tournament);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("{id:guid}/delete"), ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
@@ -310,6 +322,7 @@ namespace BoardGameLeague.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [AllowAnonymous]
         [Route("{id:guid}/schedule")]
         public async Task<IActionResult> Details(Guid id)
         {
@@ -320,6 +333,77 @@ namespace BoardGameLeague.Controllers
             }
 
             return View(tournament);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("{id:guid}/attachments")]
+        public async Task<IActionResult> GetAttachments(Guid id)
+        {
+            var attachments = await _context.Attachments
+                .Where(a => a.TournamentId == id)
+                .OrderByDescending(a => a.CreatedAt)
+                .ToListAsync();
+
+            return PartialView("_AttachmentList", attachments);
+        }
+
+        [Authorize(Roles = "Admin,Manager")]
+        [HttpPost("{id:guid}/attachments")]
+        public async Task<IActionResult> UploadAttachment(Guid id, IFormFile file)
+        {
+            var tournament = await _context.Tournaments.FindAsync(id);
+            if (tournament == null)
+            {
+                return NotFound();
+            }
+
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest();
+            }
+
+            var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "tournaments", id.ToString());
+            Directory.CreateDirectory(uploadsPath);
+            var storedFileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            var filePath = Path.Combine(uploadsPath, storedFileName);
+
+            await using var stream = new FileStream(filePath, FileMode.Create);
+            await file.CopyToAsync(stream);
+
+            var attachment = new Attachment
+            {
+                TournamentId = id,
+                FileName = Path.GetFileName(file.FileName),
+                FilePath = "/uploads/tournaments/" + id + "/" + storedFileName,
+                ContentType = file.ContentType ?? "application/octet-stream",
+                FileSize = file.Length,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Attachments.Add(attachment);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [Authorize(Roles = "Admin,Manager")]
+        [HttpDelete("attachments/{id:int}")]
+        public async Task<IActionResult> DeleteAttachment(int id)
+        {
+            var attachment = await _context.Attachments.FindAsync(id);
+            if (attachment == null)
+            {
+                return NotFound();
+            }
+
+            var physicalPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", attachment.FilePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+            if (System.IO.File.Exists(physicalPath))
+            {
+                System.IO.File.Delete(physicalPath);
+            }
+
+            _context.Attachments.Remove(attachment);
+            await _context.SaveChangesAsync();
+            return Ok();
         }
     }
 }

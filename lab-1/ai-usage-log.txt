@@ -1,0 +1,16 @@
+AI Usage Log for Lab 1
+
+- Date: 2026-06-07
+- Agent: GitHub Copilot (Raptor mini Preview)
+- Task: implement Lab 1 requirements in the BoardGameLeague ASP.NET Core MVC application.
+- Actions performed:
+  - verified the object model contains 7+ classes and complex entities
+  - confirmed the model includes an enum, DateTime properties, 1-N and N-N relations
+  - confirmed sample objects are created in Program.cs via LeagueDataFactory
+  - confirmed LINQ queries are present in the sample league generation
+  - confirmed async-await usage is demonstrated in CreateSampleLeagueAsync
+  - added authorization rules for MVC and API controllers
+  - added explicit lab artifact folder with this log and implementation summary
+
+Notes:
+This log is stored in the repository root folder under lab-1 as required by the lab document.
