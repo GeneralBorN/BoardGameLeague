@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Linq;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +36,7 @@ if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(goo
         {
             options.ClientId = googleClientId;
             options.ClientSecret = googleClientSecret;
+            options.SaveTokens = true;
         });
 }
 builder.Services.AddRazorPages();
@@ -48,7 +50,10 @@ using (var scope = app.Services.CreateScope())
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
-    dbContext.Database.Migrate();
+    if (dbContext.Database.IsRelational())
+    {
+        dbContext.Database.Migrate();
+    }
     await SeedDatabaseAsync(dbContext, logger);
     await SeedIdentityAsync(userManager, roleManager, logger);
 }
@@ -161,7 +166,7 @@ static async Task SeedIdentityAsync(UserManager<AppUser> userManager, RoleManage
             UserName = adminEmail,
             Email = adminEmail,
             OIB = "00000000000",
-            JMBG = "0000000000",
+            JMBG = "0000000000000",
             EmailConfirmed = true
         };
 

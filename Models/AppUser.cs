@@ -11,7 +11,7 @@ namespace BoardGameLeague.Models
         public string OIB { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(10, MinimumLength = 10)]
+        [StringLength(13, MinimumLength = 13)]
         [RegularExpression("^[0-9]*$", ErrorMessage = "JMBG must contain only digits.")]
         public string JMBG { get; set; } = string.Empty;
     }

@@ -140,7 +140,7 @@ namespace BoardGameLeague.Migrations
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     OIB = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: false),
-                    JMBG = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    JMBG = table.Column<string>(type: "nvarchar(13)", maxLength: 13, nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),

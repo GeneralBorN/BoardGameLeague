@@ -21,6 +21,7 @@ namespace BoardGameLeague.Controllers.Api
             _context = context;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TeamDto>>> Get([FromQuery] string? q)
         {
@@ -38,6 +39,7 @@ namespace BoardGameLeague.Controllers.Api
             return Ok(teams);
         }
 
+        [AllowAnonymous]
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<TeamDto>> Get(Guid id)
         {

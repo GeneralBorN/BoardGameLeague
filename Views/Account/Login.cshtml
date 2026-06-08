@@ -44,7 +44,11 @@
             }
             else
             {
-                <div class="text-muted">No external authentication providers are currently configured.</div>
+                <div class="text-muted">
+                    No external authentication providers are currently configured.
+                    Configure Google OAuth values under <code>Authentication:Google:ClientId</code> and
+                    <code>Authentication:Google:ClientSecret</code> in <code>appsettings.json</code> or user secrets.
+                </div>
             }
         </div>
     </div>

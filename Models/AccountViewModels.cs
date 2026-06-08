@@ -18,7 +18,7 @@ namespace BoardGameLeague.Models
 
         [Required]
         [Display(Name = "JMBG")]
-        [StringLength(10, MinimumLength = 10)]
+        [StringLength(13, MinimumLength = 13)]
         [RegularExpression("^[0-9]*$", ErrorMessage = "JMBG must contain only digits.")]
         public string JMBG { get; set; } = string.Empty;
 
@@ -64,7 +64,7 @@ namespace BoardGameLeague.Models
 
         [Required]
         [Display(Name = "JMBG")]
-        [StringLength(10, MinimumLength = 10)]
+        [StringLength(13, MinimumLength = 13)]
         [RegularExpression("^[0-9]*$", ErrorMessage = "JMBG must contain only digits.")]
         public string JMBG { get; set; } = string.Empty;
 

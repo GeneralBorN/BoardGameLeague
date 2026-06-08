@@ -46,8 +46,8 @@ namespace BoardGameLeague.Migrations
 
                     b.Property<string>("JMBG")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasMaxLength(13)
+                        .HasColumnType("nvarchar(13)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
