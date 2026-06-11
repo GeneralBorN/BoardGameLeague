@@ -122,6 +122,15 @@ namespace BoardGameLeague.Models
         public Guid Id { get; set; }
     }
 
+    public class TeamQueryParameters : QueryParameters
+    {
+        public string? Name { get; set; }
+        public string? Region { get; set; }
+        public bool? IsActive { get; set; }
+        public int? MinWins { get; set; }
+        public int? MaxWins { get; set; }
+    }
+
     public class VenueDto
     {
         public Guid Id { get; set; }
@@ -156,6 +165,16 @@ namespace BoardGameLeague.Models
     {
         [Required]
         public Guid Id { get; set; }
+    }
+
+    public class VenueQueryParameters : QueryParameters
+    {
+        public string? Name { get; set; }
+        public string? City { get; set; }
+        public string? Country { get; set; }
+        public int? MinCapacity { get; set; }
+        public int? MaxCapacity { get; set; }
+        public bool? Indoor { get; set; }
     }
 
     public class TournamentDto
@@ -194,6 +213,15 @@ namespace BoardGameLeague.Models
     {
         [Required]
         public Guid Id { get; set; }
+    }
+
+    public class TournamentQueryParameters : QueryParameters
+    {
+        public string? Name { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public bool? IsOpen { get; set; }
+        public Guid? VenueId { get; set; }
     }
 
     public class MatchDto
@@ -236,5 +264,60 @@ namespace BoardGameLeague.Models
     {
         [Required]
         public Guid Id { get; set; }
+    }
+
+    public class MatchQueryParameters : QueryParameters
+    {
+        public Guid? TournamentId { get; set; }
+        public Guid? TeamAId { get; set; }
+        public Guid? TeamBId { get; set; }
+        public Guid? GameId { get; set; }
+        public bool? IsCompleted { get; set; }
+        public DateTime? StartTimeFrom { get; set; }
+        public DateTime? StartTimeTo { get; set; }
+    }
+
+    public class QueryParameters
+    {
+        private const int MaxPageSize = 50;
+        public int PageNumber { get; set; } = 1;
+
+        private int _pageSize = 10;
+        public int PageSize
+        {
+            get => _pageSize;
+            set => _pageSize = (value > MaxPageSize) ? MaxPageSize : value;
+        }
+
+        public string? SortBy { get; set; }
+        public string? SortOrder { get; set; } = "asc"; // "asc" or "desc"
+    }
+
+    public class BoardGameQueryParameters : QueryParameters
+    {
+        public string? Name { get; set; }
+        public GameCategory? Category { get; set; }
+        public decimal? MinComplexity { get; set; }
+        public decimal? MaxComplexity { get; set; }
+    }
+
+    public class PlayerQueryParameters : QueryParameters
+    {
+        public string? Name { get; set; }
+        public string? Country { get; set; }
+        public string? Role { get; set; }
+        public int? MinRating { get; set; }
+        public int? MaxRating { get; set; }
+    }
+
+    public class AttachmentDto
+    {
+        public int Id { get; set; }
+        public Guid TournamentId { get; set; }
+        public string FileName { get; set; } = string.Empty;
+        public string FilePath { get; set; } = string.Empty;
+        public string ContentType { get; set; } = string.Empty;
+        public long FileSize { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

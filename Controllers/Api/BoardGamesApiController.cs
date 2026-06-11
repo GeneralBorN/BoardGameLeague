@@ -11,7 +11,8 @@ namespace BoardGameLeague.Controllers.Api
 {
     [ApiController]
     [Authorize]
-    [Route("api/boardgames")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/boardgames")]
     public class BoardGamesApiController : ControllerBase
     {
         private readonly BoardGameLeagueDbContext _context;
@@ -23,16 +24,53 @@ namespace BoardGameLeague.Controllers.Api
 
         [AllowAnonymous]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<BoardGameDto>>> Get([FromQuery] string? q)
+        public async Task<ActionResult<IEnumerable<BoardGameDto>>> Get([FromQuery] BoardGameQueryParameters queryParameters)
         {
             var query = _context.BoardGames.AsQueryable();
-            if (!string.IsNullOrWhiteSpace(q))
+
+            // Filtering
+            if (!string.IsNullOrWhiteSpace(queryParameters.Name))
             {
-                query = query.Where(g => g.Name.Contains(q));
+                query = query.Where(g => g.Name.Contains(queryParameters.Name));
             }
 
+            if (queryParameters.Category.HasValue)
+            {
+                query = query.Where(g => g.Category == queryParameters.Category.Value);
+            }
+
+            if (queryParameters.MinComplexity.HasValue)
+            {
+                query = query.Where(g => g.Complexity >= queryParameters.MinComplexity.Value);
+            }
+
+            if (queryParameters.MaxComplexity.HasValue)
+            {
+                query = query.Where(g => g.Complexity <= queryParameters.MaxComplexity.Value);
+            }
+
+            // Sorting
+            if (!string.IsNullOrWhiteSpace(queryParameters.SortBy))
+            {
+                query = queryParameters.SortOrder?.ToLower() == "desc"
+                    ? query.OrderByDescending(g => EF.Property<object>(g, queryParameters.SortBy))
+                    : query.OrderBy(g => EF.Property<object>(g, queryParameters.SortBy));
+            }
+            else
+            {
+                query = query.OrderBy(g => g.Name);
+            }
+
+            // Pagination
+            var totalCount = await query.CountAsync();
+            Response.Headers.Append("X-Total-Count", totalCount.ToString());
+            Response.Headers.Append("X-Page-Size", queryParameters.PageSize.ToString());
+            Response.Headers.Append("X-Page-Number", queryParameters.PageNumber.ToString());
+            Response.Headers.Append("X-Total-Pages", ((int)Math.Ceiling((double)totalCount / queryParameters.PageSize)).ToString());
+
             var games = await query
-                .OrderBy(g => g.Name)
+                .Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
+                .Take(queryParameters.PageSize)
                 .Select(g => ToDto(g))
                 .ToListAsync();
 
@@ -52,6 +90,7 @@ namespace BoardGameLeague.Controllers.Api
             return Ok(ToDto(game));
         }
 
+        [Authorize(Roles = "Admin,Manager")]
         [HttpPost]
         public async Task<ActionResult<BoardGameDto>> Post([FromBody] BoardGameCreateDto model)
         {
@@ -77,6 +116,7 @@ namespace BoardGameLeague.Controllers.Api
             return CreatedAtAction(nameof(Get), new { id = game.Id }, ToDto(game));
         }
 
+        [Authorize(Roles = "Admin,Manager")]
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<BoardGameDto>> Put(Guid id, [FromBody] BoardGameUpdateDto model)
         {
@@ -102,6 +142,7 @@ namespace BoardGameLeague.Controllers.Api
             return Ok(ToDto(game));
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {

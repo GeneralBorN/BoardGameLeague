@@ -11,7 +11,8 @@ namespace BoardGameLeague.Controllers.Api
 {
     [ApiController]
     [Authorize]
-    [Route("api/tournaments")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/tournaments")]
     public class TournamentsApiController : ControllerBase
     {
         private readonly BoardGameLeagueDbContext _context;
@@ -23,7 +24,7 @@ namespace BoardGameLeague.Controllers.Api
 
         [AllowAnonymous]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TournamentDto>>> Get([FromQuery] string? q)
+        public async Task<ActionResult<IEnumerable<TournamentDto>>> Get([FromQuery] TournamentQueryParameters queryParameters)
         {
             var query = _context.Tournaments
                 .Include(t => t.Venue)
@@ -31,13 +32,54 @@ namespace BoardGameLeague.Controllers.Api
                     .ThenInclude(team => team.Players)
                 .AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(q))
+            // Filtering
+            if (!string.IsNullOrWhiteSpace(queryParameters.Name))
             {
-                query = query.Where(t => t.Name.Contains(q) || t.Description.Contains(q));
+                query = query.Where(t => t.Name.Contains(queryParameters.Name));
             }
 
+            if (queryParameters.StartDate.HasValue)
+            {
+                query = query.Where(t => t.StartDate >= queryParameters.StartDate.Value);
+            }
+
+            if (queryParameters.EndDate.HasValue)
+            {
+                query = query.Where(t => t.EndDate <= queryParameters.EndDate.Value);
+            }
+
+            if (queryParameters.IsOpen.HasValue)
+            {
+                query = query.Where(t => t.IsOpen == queryParameters.IsOpen.Value);
+            }
+
+            if (queryParameters.VenueId.HasValue)
+            {
+                query = query.Where(t => t.VenueId == queryParameters.VenueId.Value);
+            }
+
+            // Sorting
+            if (!string.IsNullOrWhiteSpace(queryParameters.SortBy))
+            {
+                query = queryParameters.SortOrder?.ToLower() == "desc"
+                    ? query.OrderByDescending(t => EF.Property<object>(t, queryParameters.SortBy))
+                    : query.OrderBy(t => EF.Property<object>(t, queryParameters.SortBy));
+            }
+            else
+            {
+                query = query.OrderBy(t => t.Name);
+            }
+
+            // Pagination
+            var totalCount = await query.CountAsync();
+            Response.Headers.Append("X-Total-Count", totalCount.ToString());
+            Response.Headers.Append("X-Page-Size", queryParameters.PageSize.ToString());
+            Response.Headers.Append("X-Page-Number", queryParameters.PageNumber.ToString());
+            Response.Headers.Append("X-Total-Pages", ((int)Math.Ceiling((double)totalCount / queryParameters.PageSize)).ToString());
+
             var tournaments = await query
-                .OrderBy(t => t.Name)
+                .Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
+                .Take(queryParameters.PageSize)
                 .Select(t => ToDto(t))
                 .ToListAsync();
 
@@ -62,6 +104,7 @@ namespace BoardGameLeague.Controllers.Api
             return Ok(ToDto(tournament));
         }
 
+        [Authorize(Roles = "Admin,Manager")]
         [HttpPost]
         public async Task<ActionResult<TournamentDto>> Post([FromBody] TournamentCreateDto model)
         {
@@ -102,6 +145,7 @@ namespace BoardGameLeague.Controllers.Api
             return CreatedAtAction(nameof(Get), new { id = tournament.Id }, ToDto(tournament));
         }
 
+        [Authorize(Roles = "Admin,Manager")]
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<TournamentDto>> Put(Guid id, [FromBody] TournamentUpdateDto model)
         {
@@ -147,6 +191,7 @@ namespace BoardGameLeague.Controllers.Api
             return Ok(ToDto(tournament));
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {

@@ -33,7 +33,7 @@ public class ApiCrudTests : IClassFixture<CustomWebApplicationFactory>
             Complexity = 1.5m
         };
 
-        var created = await PostAuthorizedAsync<BoardGameCreateDto, BoardGameDto>("/api/boardgames", createDto);
+        var created = await PostAuthorizedAsync<BoardGameCreateDto, BoardGameDto>("/api/v1/boardgames", createDto);
         Assert.Equal(createDto.Name, created.Name);
         Assert.Equal(createDto.Category, created.Category);
 
@@ -48,14 +48,14 @@ public class ApiCrudTests : IClassFixture<CustomWebApplicationFactory>
             Complexity = created.Complexity
         };
 
-        var updated = await PutAuthorizedAsync<BoardGameUpdateDto, BoardGameDto>($"/api/boardgames/{created.Id}", updateDto);
+        var updated = await PutAuthorizedAsync<BoardGameUpdateDto, BoardGameDto>($"/api/v1/boardgames/{created.Id}", updateDto);
         Assert.Equal(updateDto.Name, updated.Name);
 
-        var fetched = await _client.GetFromJsonAsync<BoardGameDto>($"/api/boardgames/{created.Id}");
+        var fetched = await _client.GetFromJsonAsync<BoardGameDto>($"/api/v1/boardgames/{created.Id}");
         Assert.NotNull(fetched);
         Assert.Equal(updateDto.Name, fetched!.Name);
 
-        var deleteResponse = await DeleteAuthorizedAsync($"/api/boardgames/{created.Id}");
+        var deleteResponse = await DeleteAuthorizedAsync($"/api/v1/boardgames/{created.Id}");
         Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
 
         var notFound = await _client.GetAsync($"/api/boardgames/{created.Id}");
@@ -74,7 +74,7 @@ public class ApiCrudTests : IClassFixture<CustomWebApplicationFactory>
             Role = "Player"
         };
 
-        var created = await PostAuthorizedAsync<PlayerCreateDto, PlayerDto>("/api/players", createDto);
+        var created = await PostAuthorizedAsync<PlayerCreateDto, PlayerDto>("/api/v1/players", createDto);
         Assert.Equal(createDto.Name, created.Name);
 
         var updateDto = new PlayerUpdateDto
@@ -87,14 +87,14 @@ public class ApiCrudTests : IClassFixture<CustomWebApplicationFactory>
             Role = created.Role
         };
 
-        var updated = await PutAuthorizedAsync<PlayerUpdateDto, PlayerDto>($"/api/players/{created.Id}", updateDto);
+        var updated = await PutAuthorizedAsync<PlayerUpdateDto, PlayerDto>($"/api/v1/players/{created.Id}", updateDto);
         Assert.Equal(updateDto.Name, updated.Name);
 
-        var fetched = await _client.GetFromJsonAsync<PlayerDto>($"/api/players/{created.Id}");
+        var fetched = await _client.GetFromJsonAsync<PlayerDto>($"/api/v1/players/{created.Id}");
         Assert.NotNull(fetched);
         Assert.Equal(updateDto.Name, fetched!.Name);
 
-        var deleteResponse = await DeleteAuthorizedAsync($"/api/players/{created.Id}");
+        var deleteResponse = await DeleteAuthorizedAsync($"/api/v1/players/{created.Id}");
         Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
 
         var notFound = await _client.GetAsync($"/api/players/{created.Id}");
@@ -115,7 +115,7 @@ public class ApiCrudTests : IClassFixture<CustomWebApplicationFactory>
             PlayerIds = new List<Guid>()
         };
 
-        var created = await PostAuthorizedAsync<TeamCreateDto, TeamDto>("/api/teams", createDto);
+        var created = await PostAuthorizedAsync<TeamCreateDto, TeamDto>("/api/v1/teams", createDto);
         Assert.Equal(createDto.Name, created.Name);
 
         var updateDto = new TeamUpdateDto
@@ -130,14 +130,14 @@ public class ApiCrudTests : IClassFixture<CustomWebApplicationFactory>
             PlayerIds = createDto.PlayerIds
         };
 
-        var updated = await PutAuthorizedAsync<TeamUpdateDto, TeamDto>($"/api/teams/{created.Id}", updateDto);
+        var updated = await PutAuthorizedAsync<TeamUpdateDto, TeamDto>($"/api/v1/teams/{created.Id}", updateDto);
         Assert.Equal(updateDto.Name, updated.Name);
 
-        var fetched = await _client.GetFromJsonAsync<TeamDto>($"/api/teams/{created.Id}");
+        var fetched = await _client.GetFromJsonAsync<TeamDto>($"/api/v1/teams/{created.Id}");
         Assert.NotNull(fetched);
         Assert.Equal(updateDto.Name, fetched!.Name);
 
-        var deleteResponse = await DeleteAuthorizedAsync($"/api/teams/{created.Id}");
+        var deleteResponse = await DeleteAuthorizedAsync($"/api/v1/teams/{created.Id}");
         Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
 
         var notFound = await _client.GetAsync($"/api/teams/{created.Id}");
@@ -156,7 +156,7 @@ public class ApiCrudTests : IClassFixture<CustomWebApplicationFactory>
             Indoor = true
         };
 
-        var created = await PostAuthorizedAsync<VenueCreateDto, VenueDto>("/api/venues", createDto);
+        var created = await PostAuthorizedAsync<VenueCreateDto, VenueDto>("/api/v1/venues", createDto);
         Assert.Equal(createDto.Name, created.Name);
 
         var updateDto = new VenueUpdateDto
@@ -169,14 +169,14 @@ public class ApiCrudTests : IClassFixture<CustomWebApplicationFactory>
             Indoor = created.Indoor
         };
 
-        var updated = await PutAuthorizedAsync<VenueUpdateDto, VenueDto>($"/api/venues/{created.Id}", updateDto);
+        var updated = await PutAuthorizedAsync<VenueUpdateDto, VenueDto>($"/api/v1/venues/{created.Id}", updateDto);
         Assert.Equal(updateDto.Name, updated.Name);
 
-        var fetched = await _client.GetFromJsonAsync<VenueDto>($"/api/venues/{created.Id}");
+        var fetched = await _client.GetFromJsonAsync<VenueDto>($"/api/v1/venues/{created.Id}");
         Assert.NotNull(fetched);
         Assert.Equal(updateDto.Name, fetched!.Name);
 
-        var deleteResponse = await DeleteAuthorizedAsync($"/api/venues/{created.Id}");
+        var deleteResponse = await DeleteAuthorizedAsync($"/api/v1/venues/{created.Id}");
         Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
 
         var notFound = await _client.GetAsync($"/api/venues/{created.Id}");
@@ -186,8 +186,8 @@ public class ApiCrudTests : IClassFixture<CustomWebApplicationFactory>
     [Fact]
     public async Task Tournaments_Crud_Works()
     {
-        var venues = await GetListAsync<VenueDto>("/api/venues");
-        var teams = await GetListAsync<TeamDto>("/api/teams");
+        var venues = await GetListAsync<VenueDto>("/api/v1/venues");
+        var teams = await GetListAsync<TeamDto>("/api/v1/teams");
         Assert.NotEmpty(venues);
         Assert.True(teams.Count >= 2);
 
@@ -202,7 +202,7 @@ public class ApiCrudTests : IClassFixture<CustomWebApplicationFactory>
             TeamIds = teams.Take(2).Select(t => t.Id).ToList()
         };
 
-        var created = await PostAuthorizedAsync<TournamentCreateDto, TournamentDto>("/api/tournaments", createDto);
+        var created = await PostAuthorizedAsync<TournamentCreateDto, TournamentDto>("/api/v1/tournaments", createDto);
         Assert.Equal(createDto.Name, created.Name);
         Assert.NotNull(created.Venue);
 
@@ -218,14 +218,14 @@ public class ApiCrudTests : IClassFixture<CustomWebApplicationFactory>
             TeamIds = createDto.TeamIds
         };
 
-        var updated = await PutAuthorizedAsync<TournamentUpdateDto, TournamentDto>($"/api/tournaments/{created.Id}", updateDto);
+        var updated = await PutAuthorizedAsync<TournamentUpdateDto, TournamentDto>($"/api/v1/tournaments/{created.Id}", updateDto);
         Assert.Equal(updateDto.Name, updated.Name);
 
-        var fetched = await _client.GetFromJsonAsync<TournamentDto>($"/api/tournaments/{created.Id}");
+        var fetched = await _client.GetFromJsonAsync<TournamentDto>($"/api/v1/tournaments/{created.Id}");
         Assert.NotNull(fetched);
         Assert.Equal(updateDto.Name, fetched!.Name);
 
-        var deleteResponse = await DeleteAuthorizedAsync($"/api/tournaments/{created.Id}");
+        var deleteResponse = await DeleteAuthorizedAsync($"/api/v1/tournaments/{created.Id}");
         Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
 
         var notFound = await _client.GetAsync($"/api/tournaments/{created.Id}");
@@ -235,9 +235,9 @@ public class ApiCrudTests : IClassFixture<CustomWebApplicationFactory>
     [Fact]
     public async Task Matches_Crud_Works()
     {
-        var tournaments = await GetListAsync<TournamentDto>("/api/tournaments");
-        var teams = await GetListAsync<TeamDto>("/api/teams");
-        var games = await GetListAsync<BoardGameDto>("/api/boardgames");
+        var tournaments = await GetListAsync<TournamentDto>("/api/v1/tournaments");
+        var teams = await GetListAsync<TeamDto>("/api/v1/teams");
+        var games = await GetListAsync<BoardGameDto>("/api/v1/boardgames");
         Assert.NotEmpty(tournaments);
         Assert.True(teams.Count >= 2);
         Assert.NotEmpty(games);
@@ -254,7 +254,7 @@ public class ApiCrudTests : IClassFixture<CustomWebApplicationFactory>
             IsCompleted = false
         };
 
-        var created = await PostAuthorizedAsync<MatchCreateDto, MatchDto>("/api/matches", createDto);
+        var created = await PostAuthorizedAsync<MatchCreateDto, MatchDto>("/api/v1/matches", createDto);
         Assert.Equal(createDto.TournamentId, created.Tournament!.Id);
         Assert.Equal(createDto.TeamAId, created.TeamA!.Id);
         Assert.Equal(createDto.TeamBId, created.TeamB!.Id);
@@ -272,15 +272,15 @@ public class ApiCrudTests : IClassFixture<CustomWebApplicationFactory>
             IsCompleted = true
         };
 
-        var updated = await PutAuthorizedAsync<MatchUpdateDto, MatchDto>($"/api/matches/{created.Id}", updateDto);
+        var updated = await PutAuthorizedAsync<MatchUpdateDto, MatchDto>($"/api/v1/matches/{created.Id}", updateDto);
         Assert.Equal(updateDto.ScoreA, updated.ScoreA);
         Assert.Equal(updateDto.IsCompleted, updated.IsCompleted);
 
-        var fetched = await _client.GetFromJsonAsync<MatchDto>($"/api/matches/{created.Id}");
+        var fetched = await _client.GetFromJsonAsync<MatchDto>($"/api/v1/matches/{created.Id}");
         Assert.NotNull(fetched);
         Assert.Equal(updateDto.ScoreA, fetched!.ScoreA);
 
-        var deleteResponse = await DeleteAuthorizedAsync($"/api/matches/{created.Id}");
+        var deleteResponse = await DeleteAuthorizedAsync($"/api/v1/matches/{created.Id}");
         Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
 
         var notFound = await _client.GetAsync($"/api/matches/{created.Id}");
@@ -290,7 +290,7 @@ public class ApiCrudTests : IClassFixture<CustomWebApplicationFactory>
     [Fact]
     public async Task PostEndpoints_RequireAuthentication()
     {
-        var response = await _client.PostAsJsonAsync("/api/boardgames", new { Name = "Fail" });
+        var response = await _client.PostAsJsonAsync("/api/v1/boardgames", new { Name = "Fail" });
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
@@ -300,12 +300,13 @@ public class ApiCrudTests : IClassFixture<CustomWebApplicationFactory>
         var missingId = Guid.NewGuid();
         var routes = new[]
         {
-            $"/api/boardgames/{missingId}",
-            $"/api/players/{missingId}",
-            $"/api/teams/{missingId}",
-            $"/api/venues/{missingId}",
-            $"/api/tournaments/{missingId}",
-            $"/api/matches/{missingId}"
+            $"/api/v1/boardgames/{missingId}",
+            $"/api/v1/players/{missingId}",
+            $"/api/v1/teams/{missingId}",
+            $"/api/v1/venues/{missingId}",
+            $"/api/v1/tournaments/{missingId}",
+            $"/api/v1/matches/{missingId}",
+            $"/api/v1/attachments/{missingId}"
         };
 
         foreach (var route in routes)
@@ -328,7 +329,7 @@ public class ApiCrudTests : IClassFixture<CustomWebApplicationFactory>
             Complexity = 0m
         };
 
-        var request = new HttpRequestMessage(HttpMethod.Post, "/api/boardgames")
+        var request = new HttpRequestMessage(HttpMethod.Post, "/api/v1/boardgames")
         {
             Content = JsonContent.Create(invalidDto)
         };
@@ -338,18 +339,59 @@ public class ApiCrudTests : IClassFixture<CustomWebApplicationFactory>
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    [Fact]
+    public async Task Attachments_Crud_Works()
+    {
+        // Arrange: Get a valid tournament ID first
+        var tournaments = await GetListAsync<TournamentDto>("/api/v1/tournaments");
+        Assert.NotEmpty(tournaments);
+        var tournamentId = tournaments[0].Id;
+
+        // Create a dummy file for upload
+        var content = new ByteArrayContent(System.Text.Encoding.UTF8.GetBytes("Test file content"));
+        content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/plain");
+
+        var formData = new MultipartFormDataContent();
+        formData.Add(content, "file", "test_attachment.txt");
+
+        // Act: Upload attachment (POST)
+        var uploadResponse = await PostAuthorizedAsync<MultipartFormDataContent, AttachmentDto>($"/api/v1/attachments/{tournamentId}", formData, isFile: true);
+        Assert.NotNull(uploadResponse);
+        Assert.Equal("test_attachment.txt", uploadResponse.FileName);
+
+        // Act: Get attachments for the tournament (GET)
+        var fetchedAttachments = await _client.GetFromJsonAsync<List<AttachmentDto>>($"/api/v1/attachments/{tournamentId}");
+        Assert.NotNull(fetchedAttachments);
+        Assert.Contains(fetchedAttachments, a => a.Id == uploadResponse.Id);
+
+        // Act: Delete attachment (DELETE)
+        var deleteResponse = await DeleteAuthorizedAsync($"/api/v1/attachments/{uploadResponse.Id}");
+        Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+
+        // Assert: Attachment is no longer found
+        var attachmentsAfterDelete = await _client.GetFromJsonAsync<List<AttachmentDto>>($"/api/v1/attachments/{tournamentId}");
+        Assert.NotNull(attachmentsAfterDelete);
+        Assert.DoesNotContain(attachmentsAfterDelete, a => a.Id == uploadResponse.Id);
+    }
+
     private async Task<List<T>> GetListAsync<T>(string route)
     {
         var list = await _client.GetFromJsonAsync<List<T>>(route);
         return list ?? throw new InvalidOperationException($"Unable to deserialize JSON response for route '{route}'.");
     }
 
-    private async Task<TResponse> PostAuthorizedAsync<TRequest, TResponse>(string url, TRequest body, string roles = "Admin")
+    private async Task<TResponse> PostAuthorizedAsync<TRequest, TResponse>(string url, TRequest body, string roles = "Admin", bool isFile = false)
     {
-        var request = new HttpRequestMessage(HttpMethod.Post, url)
+        var request = new HttpRequestMessage(HttpMethod.Post, url);
+        if (isFile)
         {
-            Content = JsonContent.Create(body)
-        };
+            request.Content = body as MultipartFormDataContent;
+        }
+        else
+        {
+            request.Content = JsonContent.Create(body);
+        }
+        
         AddAuthHeader(request, roles);
         var response = await _client.SendAsync(request);
         response.EnsureSuccessStatusCode();

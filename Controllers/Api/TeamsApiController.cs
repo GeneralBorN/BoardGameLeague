@@ -11,7 +11,8 @@ namespace BoardGameLeague.Controllers.Api
 {
     [ApiController]
     [Authorize]
-    [Route("api/teams")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/teams")]
     public class TeamsApiController : ControllerBase
     {
         private readonly BoardGameLeagueDbContext _context;
@@ -23,16 +24,58 @@ namespace BoardGameLeague.Controllers.Api
 
         [AllowAnonymous]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TeamDto>>> Get([FromQuery] string? q)
+        public async Task<ActionResult<IEnumerable<TeamDto>>> Get([FromQuery] TeamQueryParameters queryParameters)
         {
             var query = _context.Teams.Include(t => t.Players).AsQueryable();
-            if (!string.IsNullOrWhiteSpace(q))
+
+            // Filtering
+            if (!string.IsNullOrWhiteSpace(queryParameters.Name))
             {
-                query = query.Where(t => t.Name.Contains(q) || t.Region.Contains(q));
+                query = query.Where(t => t.Name.Contains(queryParameters.Name));
             }
 
+            if (!string.IsNullOrWhiteSpace(queryParameters.Region))
+            {
+                query = query.Where(t => t.Region.Contains(queryParameters.Region));
+            }
+
+            if (queryParameters.IsActive.HasValue)
+            {
+                query = query.Where(t => t.IsActive == queryParameters.IsActive.Value);
+            }
+
+            if (queryParameters.MinWins.HasValue)
+            {
+                query = query.Where(t => t.TotalWins >= queryParameters.MinWins.Value);
+            }
+
+            if (queryParameters.MaxWins.HasValue)
+            {
+                query = query.Where(t => t.TotalWins <= queryParameters.MaxWins.Value);
+            }
+
+            // Sorting
+            if (!string.IsNullOrWhiteSpace(queryParameters.SortBy))
+            {
+                query = queryParameters.SortOrder?.ToLower() == "desc"
+                    ? query.OrderByDescending(t => EF.Property<object>(t, queryParameters.SortBy))
+                    : query.OrderBy(t => EF.Property<object>(t, queryParameters.SortBy));
+            }
+            else
+            {
+                query = query.OrderBy(t => t.Name);
+            }
+
+            // Pagination
+            var totalCount = await query.CountAsync();
+            Response.Headers.Append("X-Total-Count", totalCount.ToString());
+            Response.Headers.Append("X-Page-Size", queryParameters.PageSize.ToString());
+            Response.Headers.Append("X-Page-Number", queryParameters.PageNumber.ToString());
+            Response.Headers.Append("X-Total-Pages", ((int)Math.Ceiling((double)totalCount / queryParameters.PageSize)).ToString());
+
             var teams = await query
-                .OrderBy(t => t.Name)
+                .Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
+                .Take(queryParameters.PageSize)
                 .Select(t => ToDto(t))
                 .ToListAsync();
 
@@ -52,6 +95,7 @@ namespace BoardGameLeague.Controllers.Api
             return Ok(ToDto(team));
         }
 
+        [Authorize(Roles = "Admin,Manager")]
         [HttpPost]
         public async Task<ActionResult<TeamDto>> Post([FromBody] TeamCreateDto model)
         {
@@ -85,6 +129,7 @@ namespace BoardGameLeague.Controllers.Api
             return CreatedAtAction(nameof(Get), new { id = team.Id }, ToDto(team));
         }
 
+        [Authorize(Roles = "Admin,Manager")]
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<TeamDto>> Put(Guid id, [FromBody] TeamUpdateDto model)
         {
@@ -120,6 +165,7 @@ namespace BoardGameLeague.Controllers.Api
             return Ok(ToDto(team));
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -134,7 +180,20 @@ namespace BoardGameLeague.Controllers.Api
             return NoContent();
         }
 
-        private static TeamDto ToDto(Team team)
+        private static PlayerDto ToPlayerDto(Player player)
+        {
+            return new PlayerDto
+            {
+                Id = player.Id,
+                Name = player.Name,
+                Rating = player.Rating,
+                JoinedDate = player.JoinedDate,
+                Country = player.Country,
+                Role = player.Role
+            };
+        }
+
+        private TeamDto ToDto(Team team)
         {
             return new TeamDto
             {
@@ -145,15 +204,7 @@ namespace BoardGameLeague.Controllers.Api
                 IsActive = team.IsActive,
                 TotalWins = team.TotalWins,
                 TotalLosses = team.TotalLosses,
-                Players = team.Players.Select(p => new PlayerDto
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Rating = p.Rating,
-                    JoinedDate = p.JoinedDate,
-                    Country = p.Country,
-                    Role = p.Role
-                }).ToList()
+                Players = team.Players?.Select(p => ToPlayerDto(p)).ToList() ?? new List<PlayerDto>()
             };
         }
     }

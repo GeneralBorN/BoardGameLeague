@@ -233,6 +233,7 @@ namespace BoardGameLeague.Models
         }
     }
 
+
     public class LeagueDashboardViewModel
     {
         public List<Team> AllTeams { get; set; } = new List<Team>();

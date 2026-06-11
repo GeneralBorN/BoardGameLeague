@@ -11,7 +11,8 @@ namespace BoardGameLeague.Controllers.Api
 {
     [ApiController]
     [Authorize]
-    [Route("api/matches")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/matches")]
     public class MatchesApiController : ControllerBase
     {
         private readonly BoardGameLeagueDbContext _context;
@@ -23,7 +24,7 @@ namespace BoardGameLeague.Controllers.Api
 
         [AllowAnonymous]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MatchDto>>> Get([FromQuery] string? q)
+        public async Task<ActionResult<IEnumerable<MatchDto>>> Get([FromQuery] MatchQueryParameters queryParameters)
         {
             var query = _context.Matches
                 .Include(m => m.Tournament).ThenInclude(t => t.Venue)
@@ -32,13 +33,58 @@ namespace BoardGameLeague.Controllers.Api
                 .Include(m => m.Game)
                 .AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(q))
+            // Filtering
+            if (queryParameters.TournamentId.HasValue)
             {
-                query = query.Where(m => m.Tournament.Name.Contains(q) || m.TeamA.Name.Contains(q) || m.TeamB.Name.Contains(q) || m.Game.Name.Contains(q));
+                query = query.Where(m => m.TournamentId == queryParameters.TournamentId.Value);
+            }
+            if (queryParameters.TeamAId.HasValue)
+            {
+                query = query.Where(m => m.TeamAId == queryParameters.TeamAId.Value);
+            }
+            if (queryParameters.TeamBId.HasValue)
+            {
+                query = query.Where(m => m.TeamBId == queryParameters.TeamBId.Value);
+            }
+            if (queryParameters.GameId.HasValue)
+            {
+                query = query.Where(m => m.GameId == queryParameters.GameId.Value);
+            }
+            if (queryParameters.IsCompleted.HasValue)
+            {
+                query = query.Where(m => m.IsCompleted == queryParameters.IsCompleted.Value);
+            }
+            if (queryParameters.StartTimeFrom.HasValue)
+            {
+                query = query.Where(m => m.StartTime >= queryParameters.StartTimeFrom.Value);
+            }
+            if (queryParameters.StartTimeTo.HasValue)
+            {
+                query = query.Where(m => m.StartTime <= queryParameters.StartTimeTo.Value);
             }
 
+            // Sorting
+            if (!string.IsNullOrWhiteSpace(queryParameters.SortBy))
+            {
+                query = queryParameters.SortOrder?.ToLower() == "desc"
+                    ? query.OrderByDescending(m => EF.Property<object>(m, queryParameters.SortBy))
+                    : query.OrderBy(m => EF.Property<object>(m, queryParameters.SortBy));
+            }
+            else
+            {
+                query = query.OrderBy(m => m.StartTime);
+            }
+
+            // Pagination
+            var totalCount = await query.CountAsync();
+            Response.Headers.Append("X-Total-Count", totalCount.ToString());
+            Response.Headers.Append("X-Page-Size", queryParameters.PageSize.ToString());
+            Response.Headers.Append("X-Page-Number", queryParameters.PageNumber.ToString());
+            Response.Headers.Append("X-Total-Pages", ((int)Math.Ceiling((double)totalCount / queryParameters.PageSize)).ToString());
+
             var matches = await query
-                .OrderBy(m => m.StartTime)
+                .Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
+                .Take(queryParameters.PageSize)
                 .Select(m => ToDto(m))
                 .ToListAsync();
 
@@ -64,6 +110,7 @@ namespace BoardGameLeague.Controllers.Api
             return Ok(ToDto(match));
         }
 
+        [Authorize(Roles = "Admin,Manager")]
         [HttpPost]
         public async Task<ActionResult<MatchDto>> Post([FromBody] MatchCreateDto model)
         {
@@ -105,6 +152,7 @@ namespace BoardGameLeague.Controllers.Api
             return CreatedAtAction(nameof(Get), new { id = match.Id }, ToDto(match));
         }
 
+        [Authorize(Roles = "Admin,Manager")]
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<MatchDto>> Put(Guid id, [FromBody] MatchUpdateDto model)
         {
@@ -147,6 +195,7 @@ namespace BoardGameLeague.Controllers.Api
             return Ok(ToDto(match));
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {

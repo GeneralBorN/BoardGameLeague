@@ -5,11 +5,27 @@ using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddApiVersioning(options =>
+{
+    options.ReportApiVersions = true;
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+});
+
+builder.Services.AddVersionedApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
+});
+
 builder.Services.AddDbContext<BoardGameLeagueDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("BoardGameLeagueDbContext")));
 builder.Services.AddScoped<ILeagueRepository, EfLeagueRepository>();
@@ -26,6 +42,13 @@ builder.Services.AddDefaultIdentity<AppUser>(options =>
     })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<BoardGameLeagueDbContext>();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+});
 
 var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
 var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];

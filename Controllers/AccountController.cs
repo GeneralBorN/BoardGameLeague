@@ -111,6 +111,7 @@ namespace BoardGameLeague.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult ExternalLogin(string provider, string? returnUrl = null)
         {
+            System.Console.WriteLine($"[DEBUG] ExternalLogin called with provider: '{provider}', returnUrl: '{returnUrl}'");
             var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Account", new { returnUrl });
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
             return Challenge(properties, provider);
@@ -120,9 +121,11 @@ namespace BoardGameLeague.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> ExternalLoginCallback(string? returnUrl = null)
         {
+            System.Console.WriteLine($"[DEBUG] ExternalLoginCallback called. returnUrl: '{returnUrl}'");
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
             {
+                System.Console.WriteLine("[DEBUG] ExternalLoginInfo is null. Redirecting back to Login.");
                 return RedirectToAction(nameof(Login));
             }
 
@@ -204,6 +207,13 @@ namespace BoardGameLeague.Controllers
             await _userManager.AddToRoleAsync(user, "Manager");
             await _signInManager.SignInAsync(user, isPersistent: false);
             return RedirectToLocal(model.ReturnUrl);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult AccessDenied()
+        {
+            return View();
         }
 
         private IActionResult RedirectToLocal(string? returnUrl)

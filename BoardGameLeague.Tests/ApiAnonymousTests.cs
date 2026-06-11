@@ -16,12 +16,12 @@ public class ApiAnonymousTests : IClassFixture<CustomWebApplicationFactory>
     }
 
     [Theory]
-    [InlineData("/api/boardgames")]
-    [InlineData("/api/players")]
-    [InlineData("/api/teams")]
-    [InlineData("/api/matches")]
-    [InlineData("/api/venues")]
-    [InlineData("/api/tournaments")]
+    [InlineData("/api/v1/boardgames")]
+    [InlineData("/api/v1/players")]
+    [InlineData("/api/v1/teams")]
+    [InlineData("/api/v1/matches")]
+    [InlineData("/api/v1/venues")]
+    [InlineData("/api/v1/tournaments")]
     public async Task GetApiEndpoints_ShouldBeAccessibleWithoutAuthentication(string route)
     {
         var response = await _client.GetAsync(route);
@@ -41,19 +41,21 @@ public class ApiAnonymousTests : IClassFixture<CustomWebApplicationFactory>
     }
 
     [Fact]
-    public async Task GetTournamentAttachments_ReturnsHtmlWithoutAuthentication()
+    public async Task GetAttachmentsByTournamentId_ShouldBeAccessibleWithoutAuthentication()
     {
-        var tournaments = await _client.GetFromJsonAsync<List<TournamentDto>>("/api/tournaments");
+        // Arrange: Get a valid tournament ID first
+        var tournaments = await _client.GetFromJsonAsync<List<TournamentDto>>("/api/v1/tournaments");
         Assert.NotNull(tournaments);
         Assert.NotEmpty(tournaments!);
-
         var tournamentId = tournaments![0].Id;
-        var response = await _client.GetAsync($"/tournaments/{tournamentId}/attachments");
 
+        // Act
+        var response = await _client.GetAsync($"/api/v1/attachments/{tournamentId}");
+
+        // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var html = await response.Content.ReadAsStringAsync();
-        Assert.Contains("<th>File</th>", html);
-        Assert.Contains("<th>Size</th>", html);
-        Assert.Contains("<th>Uploaded</th>", html);
+        var attachments = await response.Content.ReadFromJsonAsync<List<AttachmentDto>>();
+        Assert.NotNull(attachments);
+        // Depending on seed data, attachments might be empty, so no Assert.NotEmpty here.
     }
 }

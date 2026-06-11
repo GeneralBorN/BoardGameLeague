@@ -11,7 +11,8 @@ namespace BoardGameLeague.Controllers.Api
 {
     [ApiController]
     [Authorize]
-    [Route("api/venues")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/venues")]
     public class VenuesApiController : ControllerBase
     {
         private readonly BoardGameLeagueDbContext _context;
@@ -23,25 +24,64 @@ namespace BoardGameLeague.Controllers.Api
 
         [AllowAnonymous]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<VenueDto>>> Get([FromQuery] string? q)
+        public async Task<ActionResult<IEnumerable<VenueDto>>> Get([FromQuery] VenueQueryParameters queryParameters)
         {
             var query = _context.Venues.AsQueryable();
-            if (!string.IsNullOrWhiteSpace(q))
+
+            // Filtering
+            if (!string.IsNullOrWhiteSpace(queryParameters.Name))
             {
-                query = query.Where(v => v.Name.Contains(q) || v.City.Contains(q) || v.Country.Contains(q));
+                query = query.Where(v => v.Name.Contains(queryParameters.Name));
             }
 
+            if (!string.IsNullOrWhiteSpace(queryParameters.City))
+            {
+                query = query.Where(v => v.City.Contains(queryParameters.City));
+            }
+
+            if (!string.IsNullOrWhiteSpace(queryParameters.Country))
+            {
+                query = query.Where(v => v.Country.Contains(queryParameters.Country));
+            }
+
+            if (queryParameters.MinCapacity.HasValue)
+            {
+                query = query.Where(v => v.Capacity >= queryParameters.MinCapacity.Value);
+            }
+
+            if (queryParameters.MaxCapacity.HasValue)
+            {
+                query = query.Where(v => v.Capacity <= queryParameters.MaxCapacity.Value);
+            }
+
+            if (queryParameters.Indoor.HasValue)
+            {
+                query = query.Where(v => v.Indoor == queryParameters.Indoor.Value);
+            }
+
+            // Sorting
+            if (!string.IsNullOrWhiteSpace(queryParameters.SortBy))
+            {
+                query = queryParameters.SortOrder?.ToLower() == "desc"
+                    ? query.OrderByDescending(v => EF.Property<object>(v, queryParameters.SortBy))
+                    : query.OrderBy(v => EF.Property<object>(v, queryParameters.SortBy));
+            }
+            else
+            {
+                query = query.OrderBy(v => v.Name);
+            }
+
+            // Pagination
+            var totalCount = await query.CountAsync();
+            Response.Headers.Append("X-Total-Count", totalCount.ToString());
+            Response.Headers.Append("X-Page-Size", queryParameters.PageSize.ToString());
+            Response.Headers.Append("X-Page-Number", queryParameters.PageNumber.ToString());
+            Response.Headers.Append("X-Total-Pages", ((int)Math.Ceiling((double)totalCount / queryParameters.PageSize)).ToString());
+
             var venues = await query
-                .OrderBy(v => v.Name)
-                .Select(v => new VenueDto
-                {
-                    Id = v.Id,
-                    Name = v.Name,
-                    City = v.City,
-                    Country = v.Country,
-                    Capacity = v.Capacity,
-                    Indoor = v.Indoor
-                })
+                .Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
+                .Take(queryParameters.PageSize)
+                .Select(v => ToDto(v))
                 .ToListAsync();
 
             return Ok(venues);
@@ -57,17 +97,10 @@ namespace BoardGameLeague.Controllers.Api
                 return NotFound();
             }
 
-            return Ok(new VenueDto
-            {
-                Id = venue.Id,
-                Name = venue.Name,
-                City = venue.City,
-                Country = venue.Country,
-                Capacity = venue.Capacity,
-                Indoor = venue.Indoor
-            });
+            return Ok(ToDto(venue));
         }
 
+        [Authorize(Roles = "Admin,Manager")]
         [HttpPost]
         public async Task<ActionResult<VenueDto>> Post([FromBody] VenueCreateDto model)
         {
@@ -89,17 +122,10 @@ namespace BoardGameLeague.Controllers.Api
             _context.Venues.Add(venue);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(Get), new { id = venue.Id }, new VenueDto
-            {
-                Id = venue.Id,
-                Name = venue.Name,
-                City = venue.City,
-                Country = venue.Country,
-                Capacity = venue.Capacity,
-                Indoor = venue.Indoor
-            });
+            return CreatedAtAction(nameof(Get), new { id = venue.Id }, ToDto(venue));
         }
 
+        [Authorize(Roles = "Admin,Manager")]
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<VenueDto>> Put(Guid id, [FromBody] VenueUpdateDto model)
         {
@@ -121,17 +147,10 @@ namespace BoardGameLeague.Controllers.Api
             venue.Indoor = model.Indoor;
 
             await _context.SaveChangesAsync();
-            return Ok(new VenueDto
-            {
-                Id = venue.Id,
-                Name = venue.Name,
-                City = venue.City,
-                Country = venue.Country,
-                Capacity = venue.Capacity,
-                Indoor = venue.Indoor
-            });
+            return Ok(ToDto(venue));
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -144,6 +163,19 @@ namespace BoardGameLeague.Controllers.Api
             _context.Venues.Remove(venue);
             await _context.SaveChangesAsync();
             return NoContent();
+        }
+
+        private static VenueDto ToDto(Venue venue)
+        {
+            return new VenueDto
+            {
+                Id = venue.Id,
+                Name = venue.Name,
+                City = venue.City,
+                Country = venue.Country,
+                Capacity = venue.Capacity,
+                Indoor = venue.Indoor
+            };
         }
     }
 }

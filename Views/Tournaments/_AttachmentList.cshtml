@@ -17,9 +17,13 @@
                 <td>@FormatBytes(attachment.FileSize)</td>
                 <td>@attachment.CreatedAt.ToString("g")</td>
                 <td>
-                    @if (User.IsInRole("Admin"))
+                    @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
                     {
-                        <button type="button" class="btn btn-sm btn-danger" onclick="deleteAttachment(@attachment.Id)">Delete</button>
+                        <button type="button"
+                                class="btn btn-sm btn-danger"
+                                onclick="deleteAttachment(@attachment.Id)">
+                            Delete
+                        </button>
                     }
                 </td>
             </tr>

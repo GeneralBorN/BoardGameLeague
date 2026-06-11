@@ -32,15 +32,16 @@
             <hr />
             @if (Model.ExternalLogins != null && Model.ExternalLogins.Any())
             {
-                <form asp-action="ExternalLogin" method="post">
-                    @Html.AntiForgeryToken()
-                    @foreach (var provider in Model.ExternalLogins)
-                    {
-                        <button type="submit" name="provider" value="@provider.Name" class="btn btn-outline-secondary w-100 mb-2">
+                @foreach (var provider in Model.ExternalLogins)
+                {
+                    <form asp-controller="Account" asp-action="ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="provider" value="@provider.Name" />
+                        <button type="submit" class="btn btn-outline-secondary w-100 mb-2">
                             Continue with @provider.DisplayName
                         </button>
-                    }
-                </form>
+                    </form>
+                }
             }
             else
             {

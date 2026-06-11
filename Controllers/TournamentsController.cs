@@ -382,7 +382,7 @@ namespace BoardGameLeague.Controllers
 
             _context.Attachments.Add(attachment);
             await _context.SaveChangesAsync();
-            return Ok();
+            return RedirectToAction("Edit", new { id });
         }
 
         [Authorize(Roles = "Admin,Manager")]
@@ -403,7 +403,7 @@ namespace BoardGameLeague.Controllers
 
             _context.Attachments.Remove(attachment);
             await _context.SaveChangesAsync();
-            return Ok();
+            return RedirectToAction("Edit", new { id = attachment.TournamentId });
         }
     }
 }
