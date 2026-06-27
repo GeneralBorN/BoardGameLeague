@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 namespace BoardGameLeague.Controllers
 {
     [Authorize]
-    [Route("matches")]
     public class MatchesController : Controller
     {
         private readonly ILeagueRepository _leagueRepository;
@@ -23,7 +22,6 @@ namespace BoardGameLeague.Controllers
         }
 
         [AllowAnonymous]
-        [Route("")]
         public async Task<IActionResult> Index()
         {
             var matches = await _leagueRepository.GetAllMatchesAsync();
@@ -31,7 +29,6 @@ namespace BoardGameLeague.Controllers
         }
 
         [AllowAnonymous]
-        [Route("search")]
         public async Task<IActionResult> Search(string q)
         {
             var matches = await _leagueRepository.GetAllMatchesAsync();
@@ -132,7 +129,6 @@ namespace BoardGameLeague.Controllers
         }
 
         [Authorize(Roles = "Admin,Manager")]
-        [HttpGet("create")]
         public async Task<IActionResult> Create()
         {
             var match = new Match { StartTime = DateTime.Today.AddHours(10) };
@@ -142,7 +138,7 @@ namespace BoardGameLeague.Controllers
         }
 
         [Authorize(Roles = "Admin,Manager")]
-        [HttpPost("create")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Match match)
         {
@@ -167,7 +163,6 @@ namespace BoardGameLeague.Controllers
         }
 
         [Authorize(Roles = "Admin,Manager")]
-        [HttpGet("{id:guid}/edit")]
         public async Task<IActionResult> Edit(Guid id)
         {
             var match = await _context.Matches
@@ -188,8 +183,7 @@ namespace BoardGameLeague.Controllers
         }
 
         [Authorize(Roles = "Admin,Manager")]
-        [HttpPost("{id:guid}/edit")]
-        [ActionName("Edit")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditPost(Guid id)
         {
@@ -199,6 +193,7 @@ namespace BoardGameLeague.Controllers
                 .Include(m => m.Game)
                 .Include(m => m.Tournament)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (match == null)
             {
                 return NotFound();
@@ -222,8 +217,7 @@ namespace BoardGameLeague.Controllers
             return View(match);
         }
 
-        [Authorize(Roles = "Admin")]
-        [HttpGet("{id:guid}/delete")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var match = await _context.Matches
@@ -240,8 +234,8 @@ namespace BoardGameLeague.Controllers
             return View(match);
         }
 
-        [Authorize(Roles = "Admin")]
-        [HttpPost("{id:guid}/delete"), ActionName("Delete")]
+        [Authorize(Roles = "Admin,Manager")]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
@@ -257,7 +251,6 @@ namespace BoardGameLeague.Controllers
         }
 
         [AllowAnonymous]
-        [Route("{id:guid}/result")]
         public async Task<IActionResult> Details(Guid id)
         {
             var match = await _leagueRepository.GetMatchByIdAsync(id);

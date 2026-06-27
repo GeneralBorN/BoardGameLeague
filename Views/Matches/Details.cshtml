@@ -43,6 +43,13 @@
                     <p class="detail-score"><strong>@Model.TeamA.Name</strong> @Model.ScoreA — @Model.ScoreB <strong>@Model.TeamB.Name</strong></p>
                     <p>Winner: <strong>@Model.Winner.Name</strong></p>
                 </div>
+                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                {
+                    <div class="card-footer">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
+                    </div>
+                }
             </div>
         </div>
     </div>

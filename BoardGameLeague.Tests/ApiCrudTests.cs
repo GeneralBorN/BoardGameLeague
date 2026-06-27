@@ -102,6 +102,28 @@ public class ApiCrudTests : IClassFixture<CustomWebApplicationFactory>
     }
 
     [Fact]
+    public async Task Players_Post_InvalidModel_ReturnsBadRequest()
+    {
+        var invalidDto = new PlayerCreateDto
+        {
+            Name = string.Empty,
+            Rating = 0,
+            JoinedDate = DateTime.Today.AddDays(1), // Future date
+            Country = "Nowhere",
+            Role = "InvalidRole"
+        };
+
+        var request = new HttpRequestMessage(HttpMethod.Post, "/api/v1/players")
+        {
+            Content = JsonContent.Create(invalidDto)
+        };
+        AddAuthHeader(request);
+
+        var response = await _client.SendAsync(request);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
     public async Task Teams_Crud_Works()
     {
         var createDto = new TeamCreateDto

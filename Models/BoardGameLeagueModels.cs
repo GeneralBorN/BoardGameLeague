@@ -264,7 +264,12 @@ namespace BoardGameLeague.Models
                 new Player { Name = "Marko", Rating = 1620, JoinedDate = DateTime.Today.AddMonths(-11), Country = "RS", Role = "Co-captain" },
                 new Player { Name = "Ema", Rating = 1695, JoinedDate = DateTime.Today.AddYears(-3), Country = "HR", Role = "Player" },
                 new Player { Name = "Sara", Rating = 1510, JoinedDate = DateTime.Today.AddMonths(-4), Country = "BA", Role = "Player" },
-                new Player { Name = "Ivan2", Rating = 1605, JoinedDate = DateTime.Today.AddMonths(-2), Country = "BA", Role = "Player" }
+                new Player { Name = "Ivan2", Rating = 1605, JoinedDate = DateTime.Today.AddMonths(-2), Country = "BA", Role = "Player" },
+                new Player { Name = "John Smith", Rating = 1900, JoinedDate = DateTime.Today.AddYears(-5), Country = "US", Role = "Veteran" },
+                new Player { Name = "Maria Garcia", Rating = 1850, JoinedDate = DateTime.Today.AddYears(-4), Country = "ES", Role = "Strategist" },
+                new Player { Name = "Chen Wei", Rating = 1875, JoinedDate = DateTime.Today.AddYears(-3), Country = "CN", Role = "Prodigy" },
+                new Player { Name = "Yuki Tanaka", Rating = 1790, JoinedDate = DateTime.Today.AddYears(-2), Country = "JP", Role = "Analyst" },
+                new Player { Name = "Fatima Al-Fassi", Rating = 1760, JoinedDate = DateTime.Today.AddYears(-1), Country = "MA", Role = "Rook" },
             };
 
             var boardGames = new List<BoardGame>
@@ -272,7 +277,11 @@ namespace BoardGameLeague.Models
                 new BoardGame { Name = "Catan", Category = GameCategory.Family, MinPlayers = 3, MaxPlayers = 4, AveragePlayTime = TimeSpan.FromMinutes(90), Complexity = 2.3m },
                 new BoardGame { Name = "Azul", Category = GameCategory.Abstract, MinPlayers = 2, MaxPlayers = 4, AveragePlayTime = TimeSpan.FromMinutes(45), Complexity = 1.8m },
                 new BoardGame { Name = "Pandemic", Category = GameCategory.Cooperative, MinPlayers = 2, MaxPlayers = 4, AveragePlayTime = TimeSpan.FromMinutes(60), Complexity = 2.5m },
-                new BoardGame { Name = "Terraforming Mars", Category = GameCategory.Strategy, MinPlayers = 1, MaxPlayers = 5, AveragePlayTime = TimeSpan.FromMinutes(120), Complexity = 3.4m }
+                new BoardGame { Name = "Terraforming Mars", Category = GameCategory.Strategy, MinPlayers = 1, MaxPlayers = 5, AveragePlayTime = TimeSpan.FromMinutes(120), Complexity = 3.4m },
+                new BoardGame { Name = "Gloomhaven", Category = GameCategory.Thematic, MinPlayers = 1, MaxPlayers = 4, AveragePlayTime = TimeSpan.FromMinutes(90), Complexity = 3.8m },
+                new BoardGame { Name = "7 Wonders", Category = GameCategory.Family, MinPlayers = 3, MaxPlayers = 7, AveragePlayTime = TimeSpan.FromMinutes(30), Complexity = 2.4m },
+                new BoardGame { Name = "Ticket to Ride", Category = GameCategory.Family, MinPlayers = 2, MaxPlayers = 5, AveragePlayTime = TimeSpan.FromMinutes(60), Complexity = 1.9m },
+                new BoardGame { Name = "Codenames", Category = GameCategory.Party, MinPlayers = 2, MaxPlayers = 8, AveragePlayTime = TimeSpan.FromMinutes(15), Complexity = 1.3m },
             };
 
             var teams = new List<Team>
@@ -282,7 +291,9 @@ namespace BoardGameLeague.Models
                 new Team { Name = "Card Sharks", Region = "Rijeka", FoundedDate = DateTime.Today.AddYears(-1), IsActive = true, TotalWins = 10, TotalLosses = 6 },
                 new Team { Name = "Strategy Squad", Region = "Osijek", FoundedDate = DateTime.Today.AddYears(-4), IsActive = false, TotalWins = 6, TotalLosses = 10 },
                 new Team { Name = "Board Bandits", Region = "Zadar", FoundedDate = DateTime.Today.AddYears(-2), IsActive = true, TotalWins = 11, TotalLosses = 5 },
-                new Team { Name = "RPG Rebels", Region = "Split", FoundedDate = DateTime.Today.AddYears(-3), IsActive = true, TotalWins = 9, TotalLosses = 7 }
+                new Team { Name = "RPG Rebels", Region = "Split", FoundedDate = DateTime.Today.AddYears(-3), IsActive = true, TotalWins = 9, TotalLosses = 7 },
+                new Team { Name = "The Global Gamers", Region = "International", FoundedDate = DateTime.Today.AddYears(-5), IsActive = true, TotalWins = 25, TotalLosses = 5 },
+                new Team { Name = "The Rising Stars", Region = "Asia", FoundedDate = DateTime.Today.AddYears(-2), IsActive = true, TotalWins = 15, TotalLosses = 3 },
             };
 
             void AddPlayersToTeam(Team team, params Player[] roster)
@@ -300,24 +311,32 @@ namespace BoardGameLeague.Models
             AddPlayersToTeam(teams[3], players[1], players[4], players[7]);
             AddPlayersToTeam(teams[4], players[0], players[5], players[6]);
             AddPlayersToTeam(teams[5], players[2], players[3], players[8]);
+            AddPlayersToTeam(teams[6], players[9], players[10]);
+            AddPlayersToTeam(teams[7], players[11], players[12], players[13]);
 
             var venues = new List<Venue>
             {
                 new Venue { Name = "Zagreb Convention Centre", City = "Zagreb", Country = "HR", Capacity = 1500, Indoor = true },
                 new Venue { Name = "Split Game Hall", City = "Split", Country = "HR", Capacity = 900, Indoor = true },
-                new Venue { Name = "Rijeka Arena", City = "Rijeka", Country = "HR", Capacity = 1200, Indoor = false }
+                new Venue { Name = "Rijeka Arena", City = "Rijeka", Country = "HR", Capacity = 1200, Indoor = false },
+                new Venue { Name = "New York Gaming Expo", City = "New York", Country = "US", Capacity = 5000, Indoor = true },
+                new Venue { Name = "Tokyo Game Con", City = "Tokyo", Country = "JP", Capacity = 3000, Indoor = true },
             };
 
             var tournaments = new List<Tournament>
             {
                 new Tournament { Name = "Spring Board Game League", Description = "Season opener", StartDate = DateTime.Today.AddDays(10), EndDate = DateTime.Today.AddDays(13), Venue = venues[0], IsOpen = true },
                 new Tournament { Name = "Summer Board Game League", Description = "Half-year championship", StartDate = DateTime.Today.AddDays(80), EndDate = DateTime.Today.AddDays(83), Venue = venues[1], IsOpen = true },
-                new Tournament { Name = "Autumn Board Game League", Description = "Season finale", StartDate = DateTime.Today.AddDays(170), EndDate = DateTime.Today.AddDays(173), Venue = venues[2], IsOpen = false }
+                new Tournament { Name = "Autumn Board Game League", Description = "Season finale", StartDate = DateTime.Today.AddDays(170), EndDate = DateTime.Today.AddDays(173), Venue = venues[2], IsOpen = false },
+                new Tournament { Name = "Global Game Fest", Description = "International championship", StartDate = DateTime.Today.AddDays(30), EndDate = DateTime.Today.AddDays(35), Venue = venues[3], IsOpen = true },
+                new Tournament { Name = "Asia Board Game Open", Description = "The biggest tournament in Asia", StartDate = DateTime.Today.AddDays(120), EndDate = DateTime.Today.AddDays(125), Venue = venues[4], IsOpen = true },
             };
 
             venues[0].Tournaments.Add(tournaments[0]);
             venues[1].Tournaments.Add(tournaments[1]);
             venues[2].Tournaments.Add(tournaments[2]);
+            venues[3].Tournaments.Add(tournaments[3]);
+            venues[4].Tournaments.Add(tournaments[4]);
 
             // assign teams to tournaments (many-to-many relationship)
             foreach (var team in new[] { teams[0], teams[1], teams[2] })
@@ -331,6 +350,11 @@ namespace BoardGameLeague.Models
             foreach (var team in new[] { teams[0], teams[4], teams[5] })
             {
                 tournaments[2].Teams.Add(team);
+            }
+            foreach (var team in new[] { teams[6], teams[7] })
+            {
+                tournaments[3].Teams.Add(team);
+                tournaments[4].Teams.Add(team);
             }
 
             foreach (var tournament in new[] { tournaments[0], tournaments[2] })
@@ -348,6 +372,10 @@ namespace BoardGameLeague.Models
                 teams[4].Tournaments.Add(tournament);
             }
             teams[5].Tournaments.Add(tournaments[2]);
+            teams[6].Tournaments.Add(tournaments[3]);
+            teams[6].Tournaments.Add(tournaments[4]);
+            teams[7].Tournaments.Add(tournaments[3]);
+            teams[7].Tournaments.Add(tournaments[4]);
 
             var matches = new List<Match>
             {
@@ -359,7 +387,9 @@ namespace BoardGameLeague.Models
                 new Match { Tournament = tournaments[1], TeamA = teams[2], TeamB = teams[4], Game = boardGames[1], StartTime = DateTime.Today.AddDays(82).AddHours(15), ScoreA=3, ScoreB=3, IsCompleted=false },
                 new Match { Tournament = tournaments[2], TeamA = teams[0], TeamB = teams[4], Game = boardGames[2], StartTime = DateTime.Today.AddDays(170).AddHours(9), ScoreA=0, ScoreB=0, IsCompleted=false },
                 new Match { Tournament = tournaments[2], TeamA = teams[4], TeamB = teams[5], Game = boardGames[3], StartTime = DateTime.Today.AddDays(171).AddHours(14), ScoreA=0, ScoreB=0, IsCompleted=false },
-                new Match { Tournament = tournaments[2], TeamA = teams[0], TeamB = teams[5], Game = boardGames[0], StartTime = DateTime.Today.AddDays(172).AddHours(11), ScoreA=0, ScoreB=0, IsCompleted=false }
+                new Match { Tournament = tournaments[2], TeamA = teams[0], TeamB = teams[5], Game = boardGames[0], StartTime = DateTime.Today.AddDays(172).AddHours(11), ScoreA=0, ScoreB=0, IsCompleted=false },
+                new Match { Tournament = tournaments[3], TeamA = teams[6], TeamB = teams[7], Game = boardGames[4], StartTime = DateTime.Today.AddDays(31).AddHours(10), ScoreA=5, ScoreB=2, IsCompleted=true },
+                new Match { Tournament = tournaments[4], TeamA = teams[7], TeamB = teams[6], Game = boardGames[5], StartTime = DateTime.Today.AddDays(121).AddHours(15), ScoreA=3, ScoreB=3, IsCompleted=false },
             };
 
             foreach (var m in matches)

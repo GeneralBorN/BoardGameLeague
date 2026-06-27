@@ -59,7 +59,7 @@ namespace BoardGameLeague.Controllers
                 return View(model);
             }
 
-            await _userManager.AddToRoleAsync(user, "Manager");
+            await _userManager.AddToRoleAsync(user, "User");
             await _signInManager.SignInAsync(user, isPersistent: false);
             return RedirectToAction("Index", "Home");
         }
@@ -204,7 +204,7 @@ namespace BoardGameLeague.Controllers
                 return View(model);
             }
 
-            await _userManager.AddToRoleAsync(user, "Manager");
+            await _userManager.AddToRoleAsync(user, "User");
             await _signInManager.SignInAsync(user, isPersistent: false);
             return RedirectToLocal(model.ReturnUrl);
         }

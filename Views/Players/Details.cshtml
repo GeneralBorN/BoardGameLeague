@@ -34,6 +34,13 @@
                         <dt>Joined</dt><dd>@(Model.JoinedDate.ToString("yyyy-MM-dd"))</dd>
                     </dl>
                 </div>
+                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                {
+                    <div class="card-footer">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
+                    </div>
+                }
             </div>
         </div>
         <div class="col-lg-7">

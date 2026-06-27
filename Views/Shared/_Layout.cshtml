@@ -33,11 +33,23 @@
                                 <li><a class="dropdown-item" asp-controller="Venues" asp-action="Index">Venues</a></li>
                             </ul>
                         </li>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Admin" asp-action="Index">Admin Panel</a>
+                            </li>
+                        }
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                     </ul>
                     <div class="d-flex align-items-center">
+                        <form class="d-flex me-3" role="search" id="global-search-form">
+                            <div class="position-relative">
+                                <input class="form-control" type="search" placeholder="Global search..." aria-label="Search" id="global-search-input">
+                                <div class="dropdown-menu" id="global-search-results"></div>
+                            </div>
+                        </form>
                         @await Html.PartialAsync("_LoginPartial")
                     </div>
                 </div>
@@ -60,6 +72,7 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <partial name="_ValidationScriptsPartial" />
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/search.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

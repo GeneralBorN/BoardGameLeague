@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BoardGameLeague.Controllers
 {
-    [Route("tournaments")]
+    [Authorize]
     public class TournamentsController : Controller
     {
         private readonly ILeagueRepository _leagueRepository;
@@ -24,7 +24,6 @@ namespace BoardGameLeague.Controllers
         }
 
         [AllowAnonymous]
-        [Route("")]
         public async Task<IActionResult> Index()
         {
             var tournaments = await _leagueRepository.GetAllTournamentsAsync();
@@ -32,7 +31,6 @@ namespace BoardGameLeague.Controllers
         }
 
         [AllowAnonymous]
-        [Route("search")]
         public async Task<IActionResult> Search(string q)
         {
             var tournaments = await _leagueRepository.GetAllTournamentsAsync();
@@ -48,34 +46,46 @@ namespace BoardGameLeague.Controllers
             return PartialView("_TournamentCards", tournaments);
         }
 
-        [AllowAnonymous]
-        [HttpGet("lookup/venues")]
-        public async Task<IActionResult> LookupVenues(string q)
-        {
-            var query = _context.Venues.AsQueryable();
-            
-            if (!string.IsNullOrEmpty(q))
-            {
-                query = query.Where(v => v.Name.ToLower().Contains(q.ToLower()));
-            }
-            
-            var venues = await query
-                .OrderBy(v => v.Name)
-                .Select(v => new { id = v.Id, text = v.Name })
-                .Take(15)
-                .ToListAsync();
-
-            return Json(venues);
-        }
-
         private async Task PopulateVenuesAsync(Guid? selectedId = null)
         {
             var venues = await _leagueRepository.GetAllVenuesAsync();
             ViewBag.Venues = new SelectList(venues, "Id", "Name", selectedId);
         }
 
+        private void ClearVenueIdModelState()
+        {
+            ModelState.Remove("VenueId");
+            ModelState.Remove("Tournament.VenueId");
+        }
+
+        private static bool TryParseAnyDate(string? text, out DateTime value)
+        {
+            value = default;
+            if (string.IsNullOrWhiteSpace(text)) return false;
+            var candidates = new[] { "dd.MM.yyyy HH:mm", "MM/dd/yyyy HH:mm", "yyyy-MM-ddTHH:mm", "yyyy-MM-dd HH:mm" };
+            foreach (var fmt in candidates)
+            {
+                if (DateTime.TryParseExact(text, fmt, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var dt))
+                {
+                    value = dt; return true;
+                }
+            }
+
+            // try culture-aware parse (hr locale)
+            if (DateTime.TryParse(text, System.Globalization.CultureInfo.GetCultureInfo("hr"), System.Globalization.DateTimeStyles.None, out var dt2))
+            {
+                value = dt2; return true;
+            }
+
+            if (DateTime.TryParse(text, System.Globalization.CultureInfo.CurrentCulture, System.Globalization.DateTimeStyles.None, out var dt3))
+            {
+                value = dt3; return true;
+            }
+
+            return false;
+        }
+
         [Authorize(Roles = "Admin,Manager")]
-        [HttpGet("create")]
         public async Task<IActionResult> Create()
         {
             await PopulateVenuesAsync();
@@ -83,9 +93,9 @@ namespace BoardGameLeague.Controllers
         }
 
         [Authorize(Roles = "Admin,Manager")]
-        [HttpPost("create")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Description,StartDate,EndDate,IsOpen")] Tournament tournament)
+        public async Task<IActionResult> Create(Tournament tournament)
         {
             // parse date strings from the custom datepicker inputs if present
             if (Request.Form.TryGetValue("StartDate", out var startVal))
@@ -162,10 +172,9 @@ namespace BoardGameLeague.Controllers
         }
 
         [Authorize(Roles = "Admin,Manager")]
-        [HttpGet("{id:guid}/edit")]
         public async Task<IActionResult> Edit(Guid id)
         {
-            var tournament = await _context.Tournaments.Include(t => t.Venue).FirstOrDefaultAsync(t => t.Id == id);
+            var tournament = await _context.Tournaments.FindAsync(id);
             if (tournament == null)
             {
                 return NotFound();
@@ -177,13 +186,11 @@ namespace BoardGameLeague.Controllers
         }
 
         [Authorize(Roles = "Admin,Manager")]
-        [HttpPost("{id:guid}/edit")]
-        [ActionName("Edit")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditPost(Guid id)
+        public async Task<IActionResult> Edit(Guid id, Tournament tournament)
         {
-            var tournament = await _context.Tournaments.Include(t => t.Venue).FirstOrDefaultAsync(t => t.Id == id);
-            if (tournament == null)
+            if (id != tournament.Id)
             {
                 return NotFound();
             }
@@ -260,41 +267,7 @@ namespace BoardGameLeague.Controllers
             return View(tournament);
         }
 
-        private void ClearVenueIdModelState()
-        {
-            ModelState.Remove("VenueId");
-            ModelState.Remove("Tournament.VenueId");
-        }
-
-        private static bool TryParseAnyDate(string? text, out DateTime value)
-        {
-            value = default;
-            if (string.IsNullOrWhiteSpace(text)) return false;
-            var candidates = new[] { "dd.MM.yyyy HH:mm", "MM/dd/yyyy HH:mm", "yyyy-MM-ddTHH:mm", "yyyy-MM-dd HH:mm" };
-            foreach (var fmt in candidates)
-            {
-                if (DateTime.TryParseExact(text, fmt, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var dt))
-                {
-                    value = dt; return true;
-                }
-            }
-
-            // try culture-aware parse (hr locale)
-            if (DateTime.TryParse(text, System.Globalization.CultureInfo.GetCultureInfo("hr"), System.Globalization.DateTimeStyles.None, out var dt2))
-            {
-                value = dt2; return true;
-            }
-
-            if (DateTime.TryParse(text, System.Globalization.CultureInfo.CurrentCulture, System.Globalization.DateTimeStyles.None, out var dt3))
-            {
-                value = dt3; return true;
-            }
-
-            return false;
-        }
-
-        [Authorize(Roles = "Admin")]
-        [HttpGet("{id:guid}/delete")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var tournament = await _context.Tournaments.FindAsync(id);
@@ -306,8 +279,8 @@ namespace BoardGameLeague.Controllers
             return View(tournament);
         }
 
-        [Authorize(Roles = "Admin")]
-        [HttpPost("{id:guid}/delete"), ActionName("Delete")]
+        [Authorize(Roles = "Admin,Manager")]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
@@ -323,7 +296,6 @@ namespace BoardGameLeague.Controllers
         }
 
         [AllowAnonymous]
-        [Route("{id:guid}/schedule")]
         public async Task<IActionResult> Details(Guid id)
         {
             var tournament = await _leagueRepository.GetTournamentByIdAsync(id);
@@ -335,20 +307,8 @@ namespace BoardGameLeague.Controllers
             return View(tournament);
         }
 
-        [AllowAnonymous]
-        [HttpGet("{id:guid}/attachments")]
-        public async Task<IActionResult> GetAttachments(Guid id)
-        {
-            var attachments = await _context.Attachments
-                .Where(a => a.TournamentId == id)
-                .OrderByDescending(a => a.CreatedAt)
-                .ToListAsync();
-
-            return PartialView("_AttachmentList", attachments);
-        }
-
         [Authorize(Roles = "Admin,Manager")]
-        [HttpPost("{id:guid}/attachments")]
+        [HttpPost]
         public async Task<IActionResult> UploadAttachment(Guid id, IFormFile file)
         {
             var tournament = await _context.Tournaments.FindAsync(id);
@@ -386,7 +346,7 @@ namespace BoardGameLeague.Controllers
         }
 
         [Authorize(Roles = "Admin,Manager")]
-        [HttpDelete("attachments/{id:int}")]
+        [HttpPost]
         public async Task<IActionResult> DeleteAttachment(int id)
         {
             var attachment = await _context.Attachments.FindAsync(id);
@@ -403,7 +363,7 @@ namespace BoardGameLeague.Controllers
 
             _context.Attachments.Remove(attachment);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Edit", new { id = attachment.TournamentId });
+            return Ok();
         }
     }
 }

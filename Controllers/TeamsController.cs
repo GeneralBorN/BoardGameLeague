@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 namespace BoardGameLeague.Controllers
 {
     [Authorize]
-    [Route("teams")]
     public class TeamsController : Controller
     {
         private readonly ILeagueRepository _leagueRepository;
@@ -23,7 +22,6 @@ namespace BoardGameLeague.Controllers
         }
 
         [AllowAnonymous]
-        [Route("")]
         public async Task<IActionResult> Index()
         {
             var teams = await _leagueRepository.GetAllTeamsAsync();
@@ -31,7 +29,6 @@ namespace BoardGameLeague.Controllers
         }
 
         [AllowAnonymous]
-        [Route("search")]
         public async Task<IActionResult> Search(string q)
         {
             var teams = await _leagueRepository.GetAllTeamsAsync();
@@ -56,7 +53,6 @@ namespace BoardGameLeague.Controllers
         }
 
         [Authorize(Roles = "Admin,Manager")]
-        [HttpGet("create")]
         public async Task<IActionResult> Create()
         {
             await PopulatePlayersAsync();
@@ -64,7 +60,7 @@ namespace BoardGameLeague.Controllers
         }
 
         [Authorize(Roles = "Admin,Manager")]
-        [HttpPost("create")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Team team)
         {
@@ -88,7 +84,6 @@ namespace BoardGameLeague.Controllers
         }
 
         [Authorize(Roles = "Admin,Manager")]
-        [HttpGet("{id:guid}/edit")]
         public async Task<IActionResult> Edit(Guid id)
         {
             var team = await _context.Teams
@@ -104,15 +99,11 @@ namespace BoardGameLeague.Controllers
         }
 
         [Authorize(Roles = "Admin,Manager")]
-        [HttpPost("{id:guid}/edit")]
-        [ActionName("Edit")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditPost(Guid id)
+        public async Task<IActionResult> Edit(Guid id, Team team)
         {
-            var team = await _context.Teams
-                .Include(t => t.Players)
-                .FirstOrDefaultAsync(t => t.Id == id);
-            if (team == null)
+            if (id != team.Id)
             {
                 return NotFound();
             }
@@ -142,8 +133,7 @@ namespace BoardGameLeague.Controllers
             return View(team);
         }
 
-        [Authorize(Roles = "Admin")]
-        [HttpGet("{id:guid}/delete")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var team = await _context.Teams.FindAsync(id);
@@ -155,8 +145,8 @@ namespace BoardGameLeague.Controllers
             return View(team);
         }
 
-        [Authorize(Roles = "Admin")]
-        [HttpPost("{id:guid}/delete"), ActionName("Delete")]
+        [Authorize(Roles = "Admin,Manager")]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
@@ -172,7 +162,6 @@ namespace BoardGameLeague.Controllers
         }
 
         [AllowAnonymous]
-        [Route("{id:guid}")]
         public async Task<IActionResult> Details(Guid id)
         {
             var team = await _leagueRepository.GetTeamByIdAsync(id);

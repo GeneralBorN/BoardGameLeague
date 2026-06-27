@@ -23,8 +23,11 @@
                     <td>@match.ScoreA - @match.ScoreB</td>
                     <td>
                         <a class="btn btn-sm btn-outline-info" asp-action="Details" asp-route-id="@match.Id">Open</a>
-                        <a class="btn btn-sm btn-outline-secondary ms-2" asp-action="Edit" asp-route-id="@match.Id">Edit</a>
-                        <a class="btn btn-sm btn-outline-danger ms-2 btn-confirm-delete" data-entity="match" asp-action="Delete" asp-route-id="@match.Id">Delete</a>
+                        @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                        {
+                            <a class="btn btn-sm btn-outline-secondary ms-2" asp-action="Edit" asp-route-id="@match.Id">Edit</a>
+                            <a class="btn btn-sm btn-outline-danger ms-2 btn-confirm-delete" data-entity="match" asp-action="Delete" asp-route-id="@match.Id">Delete</a>
+                        }
                     </td>
                 </tr>
             }

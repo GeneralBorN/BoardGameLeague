@@ -13,7 +13,10 @@
 
         <div class="search-panel d-flex flex-wrap align-items-center gap-2">
             <input type="search" class="form-control js-search-input" data-search-url='@Url.Action("Search")' data-target="#match-search-results" placeholder="Search matches..." />
-            <a class="btn btn-primary" asp-action="Create">Schedule match</a>
+            @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+            {
+                <a class="btn btn-primary" asp-action="Create">Schedule match</a>
+            }
         </div>
 
         <div id="match-search-results">

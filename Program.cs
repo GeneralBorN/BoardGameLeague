@@ -113,10 +113,14 @@ app.Run();
 
 static async Task SeedDatabaseAsync(BoardGameLeagueDbContext context, ILogger logger)
 {
-    if (await context.Teams.AnyAsync())
-    {
-        return;
-    }
+    // Clear existing data
+    context.Matches.RemoveRange(context.Matches);
+    context.Tournaments.RemoveRange(context.Tournaments);
+    context.Venues.RemoveRange(context.Venues);
+    context.Teams.RemoveRange(context.Teams);
+    context.BoardGames.RemoveRange(context.BoardGames);
+    context.Players.RemoveRange(context.Players);
+    await context.SaveChangesAsync();
 
     var sample = await LeagueDataFactory.CreateSampleLeagueAsync();
     var players = sample.AllTeams.SelectMany(t => t.Players).Distinct().ToList();
@@ -167,7 +171,7 @@ static async Task ValidateSeedDataAsync(BoardGameLeagueDbContext context, ILogge
 
 static async Task SeedIdentityAsync(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, ILogger logger)
 {
-    var roles = new[] { "Admin", "Manager" };
+    var roles = new[] { "Admin", "Manager", "User" };
     foreach (var role in roles)
     {
         if (!await roleManager.RoleExistsAsync(role))

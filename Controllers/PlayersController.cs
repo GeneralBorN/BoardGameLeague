@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 namespace BoardGameLeague.Controllers
 {
     [Authorize]
-    [Route("players")]
     public class PlayersController : Controller
     {
         private readonly ILeagueRepository _leagueRepository;
@@ -22,7 +21,6 @@ namespace BoardGameLeague.Controllers
         }
 
         [AllowAnonymous]
-        [Route("")]
         public async Task<IActionResult> Index()
         {
             var players = await _leagueRepository.GetAllPlayersAsync();
@@ -30,7 +28,6 @@ namespace BoardGameLeague.Controllers
         }
 
         [AllowAnonymous]
-        [Route("search")]
         public async Task<IActionResult> Search(string q)
         {
             var players = await _leagueRepository.GetAllPlayersAsync();
@@ -47,14 +44,13 @@ namespace BoardGameLeague.Controllers
         }
 
         [Authorize(Roles = "Admin,Manager")]
-        [HttpGet("create")]
         public IActionResult Create()
         {
             return View(new Player { JoinedDate = DateTime.Today });
         }
 
         [Authorize(Roles = "Admin,Manager")]
-        [HttpPost("create")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Player player)
         {
@@ -70,7 +66,6 @@ namespace BoardGameLeague.Controllers
         }
 
         [Authorize(Roles = "Admin,Manager")]
-        [HttpGet("{id:guid}/edit")]
         public async Task<IActionResult> Edit(Guid id)
         {
             var player = await _context.Players.FindAsync(id);
@@ -83,13 +78,11 @@ namespace BoardGameLeague.Controllers
         }
 
         [Authorize(Roles = "Admin,Manager")]
-        [HttpPost("{id:guid}/edit")]
-        [ActionName("Edit")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditPost(Guid id)
+        public async Task<IActionResult> Edit(Guid id, Player player)
         {
-            var player = await _context.Players.FindAsync(id);
-            if (player == null)
+            if (id != player.Id)
             {
                 return NotFound();
             }
@@ -107,7 +100,6 @@ namespace BoardGameLeague.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpGet("{id:guid}/delete")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var player = await _context.Players.FindAsync(id);
@@ -119,8 +111,8 @@ namespace BoardGameLeague.Controllers
             return View(player);
         }
 
-        [Authorize(Roles = "Admin")]
-        [HttpPost("{id:guid}/delete"), ActionName("Delete")]
+        [Authorize(Roles = "Admin,Manager")]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
@@ -136,7 +128,6 @@ namespace BoardGameLeague.Controllers
         }
 
         [AllowAnonymous]
-        [Route("{id:guid}")]
         public async Task<IActionResult> Details(Guid id)
         {
             var player = await _leagueRepository.GetPlayerByIdAsync(id);
@@ -158,39 +149,6 @@ namespace BoardGameLeague.Controllers
                 .ToList();
 
             return View(player);
-        }
-
-        [Authorize(Roles = "Admin,Manager")]
-        [HttpPost("{id:guid}/add-to-teams")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddToTeams(Guid id, List<Guid> SelectedTeamIds)
-        {
-            var player = await _context.Players
-                .Include(p => p.Teams)
-                .FirstOrDefaultAsync(p => p.Id == id);
-            if (player == null) return NotFound();
-
-            SelectedTeamIds = SelectedTeamIds ?? new List<Guid>();
-
-            // remove memberships not selected
-            var toRemove = player.Teams.Where(t => !SelectedTeamIds.Contains(t.Id)).ToList();
-            foreach (var t in toRemove)
-            {
-                player.Teams.Remove(t);
-            }
-
-            // add new memberships
-            var selectedTeams = await _context.Teams.Where(t => SelectedTeamIds.Contains(t.Id)).ToListAsync();
-            foreach (var t in selectedTeams)
-            {
-                if (!player.Teams.Any(pt => pt.Id == t.Id))
-                {
-                    player.Teams.Add(t);
-                }
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Details), new { id });
         }
     }
 }
