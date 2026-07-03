@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -68,11 +69,37 @@
             <a class="text-muted" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <div id="chat-widget" data-csrf-token="@Xsrf.GetAndStoreTokens(Context).RequestToken" data-user-id="@User.Identity!.Name">
+            <button type="button" id="chat-toggle" class="chat-toggle-btn" aria-label="Open assistant chat">💬</button>
+            <div id="chat-panel" class="chat-panel d-none">
+                <div class="chat-panel-header">
+                    <span>League Assistant</span>
+                    <div>
+                        <button type="button" id="chat-clear" class="btn-link-plain" title="Clear conversation">Clear</button>
+                        <button type="button" id="chat-close" class="btn-close btn-close-white" aria-label="Close"></button>
+                    </div>
+                </div>
+                <div id="chat-messages" class="chat-messages"></div>
+                <form id="chat-form" class="chat-form">
+                    <input type="text" id="chat-input" class="form-control" placeholder="Ask me anything..." autocomplete="off" />
+                    <button type="submit" class="btn btn-primary btn-sm">Send</button>
+                </form>
+            </div>
+        </div>
+    }
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <partial name="_ValidationScriptsPartial" />
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/search.js" asp-append-version="true"></script>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <script src="~/js/chat.js" asp-append-version="true"></script>
+    }
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

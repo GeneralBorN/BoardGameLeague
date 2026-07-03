@@ -1,11 +1,13 @@
 using System.Linq;
 using System.Threading.Tasks;
+using BoardGameLeague.Logging;
 using BoardGameLeague.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace BoardGameLeague.Controllers
 {
@@ -14,11 +16,39 @@ namespace BoardGameLeague.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ILogQueryService _logQueryService;
 
-        public AdminController(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
+        public AdminController(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, ILogQueryService logQueryService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _logQueryService = logQueryService;
+        }
+
+        public IActionResult Logs(string? minLevel, string? search, string? date, int page = 1)
+        {
+            LogLevel? parsedLevel = !string.IsNullOrWhiteSpace(minLevel) && Enum.TryParse<LogLevel>(minLevel, true, out var level)
+                ? level
+                : null;
+            DateOnly? parsedDate = !string.IsNullOrWhiteSpace(date) && DateOnly.TryParse(date, out var d)
+                ? d
+                : null;
+
+            var result = _logQueryService.Query(new LogQueryOptions
+            {
+                MinLevel = parsedLevel,
+                Search = search,
+                Date = parsedDate,
+                Page = page,
+                PageSize = 50
+            });
+
+            ViewBag.AvailableDates = _logQueryService.GetAvailableDates();
+            ViewBag.SelectedMinLevel = minLevel ?? string.Empty;
+            ViewBag.SelectedSearch = search ?? string.Empty;
+            ViewBag.SelectedDate = date ?? string.Empty;
+
+            return View(result);
         }
 
         public async Task<IActionResult> Index()

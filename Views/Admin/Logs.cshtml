@@ -1,0 +1,132 @@
+@model BoardGameLeague.Logging.LogQueryResult
+
+@{
+    ViewData["Title"] = "Application Logs";
+    var availableDates = (IReadOnlyList<DateOnly>)ViewBag.AvailableDates;
+    var selectedMinLevel = (string)ViewBag.SelectedMinLevel;
+    var selectedSearch = (string)ViewBag.SelectedSearch;
+    var selectedDate = (string)ViewBag.SelectedDate;
+
+    string LevelClass(string level) => level switch
+    {
+        "Critical" => "log-level-critical",
+        "Error" => "log-level-error",
+        "Warning" => "log-level-warning",
+        "Information" => "log-level-info",
+        _ => "log-level-muted"
+    };
+}
+
+<div class="section-shell py-4">
+    <div class="section-header">
+        <span class="eyebrow">Admin</span>
+        <h1>Application logs</h1>
+        <p class="section-description">
+            Server-side log entries written to <code>App_Data/logs/app-yyyyMMdd.log</code>.
+            Also available as JSON via <code>GET /api/logs</code> (Admin only).
+        </p>
+    </div>
+
+    <div class="card p-3 mb-3">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small mb-1" for="minLevel">Minimum level</label>
+                <select id="minLevel" name="minLevel" class="form-select form-select-sm">
+                    <option value="">All</option>
+                    @foreach (var level in new[] { "Trace", "Debug", "Information", "Warning", "Error", "Critical" })
+                    {
+                        if (selectedMinLevel == level)
+                        {
+                            <option value="@level" selected>@level</option>
+                        }
+                        else
+                        {
+                            <option value="@level">@level</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small mb-1" for="date">Date</label>
+                <select id="date" name="date" class="form-select form-select-sm">
+                    <option value="">Last 2 days</option>
+                    @foreach (var d in availableDates)
+                    {
+                        var iso = d.ToString("yyyy-MM-dd");
+                        if (selectedDate == iso)
+                        {
+                            <option value="@iso" selected>@iso</option>
+                        }
+                        else
+                        {
+                            <option value="@iso">@iso</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small mb-1" for="search">Search</label>
+                <input id="search" name="search" type="search" class="form-control form-control-sm" value="@selectedSearch" placeholder="Category or message contains..." />
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-sm flex-grow-1">Filter</button>
+                <a asp-action="Logs" class="btn btn-outline-secondary btn-sm">Reset</a>
+            </div>
+        </form>
+    </div>
+
+    <p class="text-muted small">@Model.TotalCount matching entries - page @Model.Page of @Math.Max(1, Model.TotalPages)</p>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-sm mb-0 log-table">
+                <thead>
+                    <tr>
+                        <th style="white-space:nowrap;">Time (UTC)</th>
+                        <th>Level</th>
+                        <th>Category</th>
+                        <th>Message</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Entries.Any())
+                    {
+                        <tr><td colspan="4" class="text-muted text-center py-3">No log entries match these filters.</td></tr>
+                    }
+                    @foreach (var entry in Model.Entries)
+                    {
+                        <tr>
+                            <td style="white-space:nowrap;">@entry.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                            <td><span class="log-level-badge @LevelClass(entry.Level)">@entry.Level</span></td>
+                            <td class="log-category">@entry.Category</td>
+                            <td>
+                                <div>@entry.Message</div>
+                                @if (!string.IsNullOrEmpty(entry.Exception))
+                                {
+                                    <details class="mt-1">
+                                        <summary class="text-danger small">Exception details</summary>
+                                        <pre class="log-exception">@entry.Exception</pre>
+                                    </details>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav class="mt-3">
+            <ul class="pagination pagination-sm">
+                @for (var p = 1; p <= Model.TotalPages; p++)
+                {
+                    <li class="page-item @(p == Model.Page ? "active" : "")">
+                        <a class="page-link" asp-action="Logs" asp-route-page="@p" asp-route-minLevel="@selectedMinLevel" asp-route-search="@selectedSearch" asp-route-date="@selectedDate">@p</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>

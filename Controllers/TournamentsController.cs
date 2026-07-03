@@ -296,7 +296,7 @@ namespace BoardGameLeague.Controllers
         [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var tournament = await _context.Tournaments.FindAsync(id);
+            var tournament = await _context.Tournaments.Include(t => t.Venue).FirstOrDefaultAsync(t => t.Id == id);
             if (tournament == null)
             {
                 return NotFound();

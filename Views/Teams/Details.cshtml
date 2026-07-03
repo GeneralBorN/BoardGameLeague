@@ -17,7 +17,7 @@
         <div>
             <span class="eyebrow">Team profile</span>
             <h1>@Model.Name</h1>
-            <p class="section-description">@Model.Region • Founded @Model.FoundedDate:yyyy • @Model.Players.Count players</p>
+            <p class="section-description">@Model.Region • Founded @Model.FoundedDate.ToString("yyyy") • @Model.Players.Count players</p>
         </div>
         <div class="detail-status">
             <span class="status-pill @(Model.IsActive ? "status-active" : "status-inactive")">@(Model.IsActive ? "Active" : "Inactive")</span>
@@ -32,7 +32,7 @@
                     <dl class="detail-list">
                         <dt>Total wins</dt><dd>@Model.TotalWins</dd>
                         <dt>Total losses</dt><dd>@Model.TotalLosses</dd>
-                        <dt>Win rate</dt><dd>@Model.WinRate:P1</dd>
+                        <dt>Win rate</dt><dd>@Model.WinRate.ToString("P1")</dd>
                         <dt>Average player rating</dt><dd>@(Model.Players.Any() ? Model.Players.Average(p => p.Rating).ToString("F0") : "—")</dd>
                     </dl>
                 </div>

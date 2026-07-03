@@ -15,7 +15,7 @@
             <tr>
                 <td><a href="@attachment.FilePath" target="_blank">@attachment.FileName</a></td>
                 <td>@FormatBytes(attachment.FileSize)</td>
-                <td>@attachment.CreatedAt.ToString("g")</td>
+                <td>@attachment.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
                 <td>
                     @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
                     {

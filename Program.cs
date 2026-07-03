@@ -8,11 +8,37 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
+if (builder.Environment.IsDevelopment())
+{
+    // <GenerateAssemblyInfo>false</GenerateAssemblyInfo> above suppresses the auto-generated
+    // UserSecretsIdAttribute that AddUserSecrets<T>() normally reads off the entry assembly,
+    // so the id (matching <UserSecretsId> in BoardGameLeague.csproj) has to be passed explicitly.
+    builder.Configuration.AddUserSecrets("1198915e-fa4d-4dab-9a8b-2bce0f4fede4");
+}
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddAntiforgery(options => options.HeaderName = "X-CSRF-TOKEN");
+
+// File-based logging: FileLoggerProvider (registered on the logging pipeline below) formats
+// every ILogger call into a LogEntry and drops it on this channel; FileLoggerBackgroundService
+// is the sole consumer, appending JSON lines to a daily-rolling file under App_Data/logs.
+// LogQueryService reads those files back for the /Admin/Logs page and the /api/logs endpoint.
+var fileLoggerOptions = new BoardGameLeague.Logging.FileLoggerOptions
+{
+    LogDirectory = Path.Combine(builder.Environment.ContentRootPath, "App_Data", "logs"),
+    MinLevel = LogLevel.Information
+};
+builder.Services.AddSingleton(fileLoggerOptions);
+builder.Services.AddSingleton(System.Threading.Channels.Channel.CreateUnbounded<BoardGameLeague.Logging.LogEntry>(
+    new System.Threading.Channels.UnboundedChannelOptions { SingleReader = true }));
+builder.Logging.Services.AddSingleton<ILoggerProvider, BoardGameLeague.Logging.FileLoggerProvider>();
+builder.Services.AddHostedService<BoardGameLeague.Logging.FileLoggerBackgroundService>();
+builder.Services.AddSingleton<BoardGameLeague.Logging.ILogQueryService, BoardGameLeague.Logging.LogQueryService>();
 builder.Services.AddApiVersioning(options =>
 {
     options.ReportApiVersions = true;
@@ -29,6 +55,9 @@ builder.Services.AddVersionedApiExplorer(options =>
 builder.Services.AddDbContext<BoardGameLeagueDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("BoardGameLeagueDbContext")));
 builder.Services.AddScoped<ILeagueRepository, EfLeagueRepository>();
+
+builder.Services.AddHttpClient<BoardGameLeague.Services.IGeminiClient, BoardGameLeague.Services.GeminiClient>();
+builder.Services.AddScoped<BoardGameLeague.Services.IChatAgentService, BoardGameLeague.Services.ChatAgentService>();
 
 builder.Services.AddDefaultIdentity<AppUser>(options =>
     {
@@ -113,14 +142,18 @@ app.Run();
 
 static async Task SeedDatabaseAsync(BoardGameLeagueDbContext context, ILogger logger)
 {
-    // Clear existing data
-    context.Matches.RemoveRange(context.Matches);
-    context.Tournaments.RemoveRange(context.Tournaments);
-    context.Venues.RemoveRange(context.Venues);
-    context.Teams.RemoveRange(context.Teams);
-    context.BoardGames.RemoveRange(context.BoardGames);
-    context.Players.RemoveRange(context.Players);
-    await context.SaveChangesAsync();
+    var hasExistingData = await context.Players.AnyAsync()
+        || await context.Teams.AnyAsync()
+        || await context.BoardGames.AnyAsync()
+        || await context.Venues.AnyAsync()
+        || await context.Tournaments.AnyAsync()
+        || await context.Matches.AnyAsync();
+
+    if (hasExistingData)
+    {
+        logger.LogInformation("Database already contains data; skipping sample data seeding.");
+        return;
+    }
 
     var sample = await LeagueDataFactory.CreateSampleLeagueAsync();
     var players = sample.AllTeams.SelectMany(t => t.Players).Distinct().ToList();

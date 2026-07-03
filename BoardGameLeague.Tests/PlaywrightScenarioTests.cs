@@ -139,6 +139,46 @@ public class PlaywrightScenarioTests : IClassFixture<PlaywrightWebApplicationFac
         await Assertions.Expect(_page.Locator($"h2:has-text('{gameName}')")).Not.ToBeVisibleAsync();
     }
 
+    [Fact]
+    public async Task ChatConversation_PersistsAcrossPageNavigation_AndClearWipesIt()
+    {
+        await _page.GotoAsync(_baseUrl + "/");
+
+        var userId = await _page.Locator("#chat-widget").GetAttributeAsync("data-user-id");
+        var storageKey = $"boardgameleague.chat.{userId}";
+
+        // Seed a fake conversation directly into localStorage rather than driving a real
+        // Gemini round trip - this exercises the exact same read/render path a real
+        // conversation takes on page load, without depending on a live API call.
+        var seededTurns = System.Text.Json.JsonSerializer.Serialize(new object[]
+        {
+            new { role = "user", text = "hello from persistence test", links = Array.Empty<object>() },
+            new { role = "model", text = "hi there, persisted reply", links = Array.Empty<object>() }
+        });
+        await _page.EvaluateAsync(
+            "([key, value]) => localStorage.setItem(key, value)",
+            new[] { storageKey, seededTurns });
+
+        // Reload so the widget's setup code re-runs and picks up the seeded history.
+        await _page.ReloadAsync();
+        await _page.ClickAsync("#chat-toggle");
+        await Assertions.Expect(_page.Locator("#chat-messages")).ToContainTextAsync("hello from persistence test");
+        await Assertions.Expect(_page.Locator("#chat-messages")).ToContainTextAsync("hi there, persisted reply");
+
+        // Navigate to a completely different page - a real MVC full-page navigation,
+        // not client-side routing - the conversation should still be there.
+        await _page.GotoAsync(_baseUrl + "/Players");
+        await _page.ClickAsync("#chat-toggle");
+        await Assertions.Expect(_page.Locator("#chat-messages")).ToContainTextAsync("hello from persistence test");
+        await Assertions.Expect(_page.Locator("#chat-messages")).ToContainTextAsync("hi there, persisted reply");
+
+        // Clear wipes both the visible messages and the underlying storage.
+        await _page.ClickAsync("#chat-clear");
+        await Assertions.Expect(_page.Locator("#chat-messages")).Not.ToContainTextAsync("hello from persistence test");
+        var storedAfterClear = await _page.EvaluateAsync<string?>($"localStorage.getItem('{storageKey}')");
+        Assert.True(storedAfterClear == null || storedAfterClear == "[]");
+    }
+
     // Each Create/Edit page has several independent autocomplete widgets (Team A, Team B,
     // Game, Tournament, ...) sharing the same ".autocomplete-suggestion" class, so results
     // must be scoped to the specific widget's ".autocomplete-control" container rather than
