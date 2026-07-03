@@ -94,7 +94,8 @@ namespace BoardGameLeague.Controllers
                 return NotFound();
             }
 
-            await PopulatePlayersAsync(team.Players.Select(p => p.Id));
+            team.SelectedPlayerIds = team.Players.Select(p => p.Id).ToList();
+            await PopulatePlayersAsync(team.SelectedPlayerIds);
             return View(team);
         }
 
@@ -108,17 +109,25 @@ namespace BoardGameLeague.Controllers
                 return NotFound();
             }
 
-            if (await TryUpdateModelAsync(team, "", t => t.Name, t => t.Region, t => t.FoundedDate, t => t.IsActive, t => t.TotalWins, t => t.TotalLosses, t => t.SelectedPlayerIds))
+            var teamToUpdate = await _context.Teams
+                .Include(t => t.Players)
+                .FirstOrDefaultAsync(t => t.Id == id);
+            if (teamToUpdate == null)
             {
-                if (team.SelectedPlayerIds != null)
+                return NotFound();
+            }
+
+            if (await TryUpdateModelAsync(teamToUpdate, "", t => t.Name, t => t.Region, t => t.FoundedDate, t => t.IsActive, t => t.TotalWins, t => t.TotalLosses, t => t.SelectedPlayerIds))
+            {
+                if (teamToUpdate.SelectedPlayerIds != null)
                 {
                     var selectedPlayers = await _context.Players
-                        .Where(p => team.SelectedPlayerIds.Contains(p.Id))
+                        .Where(p => teamToUpdate.SelectedPlayerIds.Contains(p.Id))
                         .ToListAsync();
-                    team.Players.Clear();
+                    teamToUpdate.Players.Clear();
                     foreach (var player in selectedPlayers)
                     {
-                        team.Players.Add(player);
+                        teamToUpdate.Players.Add(player);
                     }
                 }
 
@@ -129,8 +138,8 @@ namespace BoardGameLeague.Controllers
                 }
             }
 
-            await PopulatePlayersAsync(team.SelectedPlayerIds);
-            return View(team);
+            await PopulatePlayersAsync(teamToUpdate.SelectedPlayerIds);
+            return View(teamToUpdate);
         }
 
         [Authorize(Roles = "Admin,Manager")]

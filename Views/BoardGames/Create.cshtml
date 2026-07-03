@@ -42,7 +42,7 @@
                 </div>
                 <div class="col-md-4">
                     <label asp-for="Complexity" class="form-label"></label>
-                    <input asp-for="Complexity" class="form-control" step="0.1" />
+                    <input asp-for="Complexity" class="form-control" value="@Model.Complexity.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)" />
                     <span asp-validation-for="Complexity" class="text-danger"></span>
                 </div>
             </div>

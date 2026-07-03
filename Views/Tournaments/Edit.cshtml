@@ -31,7 +31,7 @@
                         DisplayText = ViewBag.Venue ?? string.Empty,
                         Label = "Venue",
                         Placeholder = "Search venue...",
-                        SearchUrl = "/tournaments/lookup/venues",
+                        SearchUrl = "/Tournaments/LookupVenues",
                         SelectedValue = Model.VenueId != Guid.Empty ? Model.VenueId : null
                     })
                 </div>
@@ -102,8 +102,8 @@
                 return;
             }
             $.ajax({
-                url: `/tournaments/attachments/${id}`,
-                type: "DELETE",
+                url: '@Url.Action("DeleteAttachment", "Tournaments")/' + id,
+                type: "POST",
                 success: function () {
                     loadAttachments();
                 },

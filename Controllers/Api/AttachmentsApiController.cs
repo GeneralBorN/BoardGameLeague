@@ -30,6 +30,12 @@ namespace BoardGameLeague.Controllers.Api
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<AttachmentDto>>> GetAttachments(Guid tournamentId)
         {
+            var tournamentExists = await _context.Tournaments.AnyAsync(t => t.Id == tournamentId);
+            if (!tournamentExists)
+            {
+                return NotFound();
+            }
+
             var attachments = await _context.Attachments
                 .Where(a => a.TournamentId == tournamentId)
                                 .OrderByDescending(a => a.CreatedAt)

@@ -45,7 +45,7 @@ namespace BoardGameLeague.Controllers
             return PartialView("_MatchCards", matches);
         }
 
-        [HttpGet("lookup/teams")]
+        [HttpGet]
         public async Task<IActionResult> LookupTeams(string q)
         {
             var query = _context.Teams.AsQueryable();
@@ -64,7 +64,7 @@ namespace BoardGameLeague.Controllers
             return Json(teams);
         }
 
-        [HttpGet("lookup/games")]
+        [HttpGet]
         public async Task<IActionResult> LookupGames(string q)
         {
             var query = _context.BoardGames.AsQueryable();
@@ -83,7 +83,7 @@ namespace BoardGameLeague.Controllers
             return Json(games);
         }
 
-        [HttpGet("lookup/tournaments")]
+        [HttpGet]
         public async Task<IActionResult> LookupTournaments(string q)
         {
             var query = _context.Tournaments.AsQueryable();
@@ -184,6 +184,7 @@ namespace BoardGameLeague.Controllers
 
         [Authorize(Roles = "Admin,Manager")]
         [HttpPost]
+        [ActionName("Edit")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditPost(Guid id)
         {

@@ -29,7 +29,17 @@ document.addEventListener('DOMContentLoaded', function () {
             "Players": data.players,
             "Teams": data.teams,
             "Board Games": data.boardGames,
-            "Venues": data.venues
+            "Venues": data.venues,
+            "Matches": data.matches
+        };
+
+        const controllerByType = {
+            "Tournament": "Tournaments",
+            "Player": "Players",
+            "Team": "Teams",
+            "BoardGame": "BoardGames",
+            "Venue": "Venues",
+            "Match": "Matches"
         };
 
         for (const category in categories) {
@@ -44,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 items.forEach(item => {
                     const link = document.createElement('a');
                     link.className = 'dropdown-item';
-                    link.href = `/${item.type}s/Details/${item.id}`;
+                    link.href = `/${controllerByType[item.type] || item.type}/Details/${item.id}`;
                     link.textContent = item.name;
                     searchResults.appendChild(link);
                 });

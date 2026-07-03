@@ -24,7 +24,7 @@
                         DisplayText = ViewBag.TeamA ?? string.Empty,
                         Label = "Team A",
                         Placeholder = "Search team A...",
-                        SearchUrl = "/matches/lookup/teams",
+                        SearchUrl = "/Matches/LookupTeams",
                         SelectedValue = Model.TeamAId != Guid.Empty ? Model.TeamAId : null
                     })
                 </div>
@@ -37,7 +37,7 @@
                         DisplayText = ViewBag.TeamB ?? string.Empty,
                         Label = "Team B",
                         Placeholder = "Search team B...",
-                        SearchUrl = "/matches/lookup/teams",
+                        SearchUrl = "/Matches/LookupTeams",
                         SelectedValue = Model.TeamBId != Guid.Empty ? Model.TeamBId : null
                     })
                 </div>
@@ -50,7 +50,7 @@
                         DisplayText = ViewBag.Game ?? string.Empty,
                         Label = "Board game",
                         Placeholder = "Search board game...",
-                        SearchUrl = "/matches/lookup/games",
+                        SearchUrl = "/Matches/LookupGames",
                         SelectedValue = Model.GameId != Guid.Empty ? Model.GameId : null
                     })
                 </div>
@@ -63,7 +63,7 @@
                         DisplayText = ViewBag.Tournament ?? string.Empty,
                         Label = "Tournament",
                         Placeholder = "Search tournament...",
-                        SearchUrl = "/matches/lookup/tournaments",
+                        SearchUrl = "/Matches/LookupTournaments",
                         SelectedValue = Model.TournamentId != Guid.Empty ? Model.TournamentId : null
                     })
                 </div>

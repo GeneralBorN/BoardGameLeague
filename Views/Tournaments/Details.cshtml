@@ -81,7 +81,7 @@
 @section Scripts {
     <script>
         async function loadAttachments() {
-            const response = await fetch(`/tournaments/${encodeURIComponent('@Model.Id')}/attachments`);
+            const response = await fetch('@Url.Action("GetAttachments", "Tournaments", new { id = Model.Id })');
             if (response.ok) {
                 document.getElementById('attachmentList').innerHTML = await response.text();
             } else {
@@ -93,8 +93,8 @@
             if (!confirm('Delete this attachment?')) {
                 return;
             }
-            const response = await fetch('/tournaments/attachments/' + id, {
-                method: 'DELETE'
+            const response = await fetch('@Url.Action("DeleteAttachment", "Tournaments")/' + id, {
+                method: 'POST'
             });
             if (response.ok) {
                 loadAttachments();

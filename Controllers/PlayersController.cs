@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BoardGameLeague.Models;
@@ -87,7 +88,13 @@ namespace BoardGameLeague.Controllers
                 return NotFound();
             }
 
-            if (await TryUpdateModelAsync(player, "", p => p.Name, p => p.Rating, p => p.JoinedDate, p => p.Country, p => p.Role))
+            var playerToUpdate = await _context.Players.FindAsync(id);
+            if (playerToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            if (await TryUpdateModelAsync(playerToUpdate, "", p => p.Name, p => p.Rating, p => p.JoinedDate, p => p.Country, p => p.Role))
             {
                 if (ModelState.IsValid)
                 {
@@ -96,7 +103,7 @@ namespace BoardGameLeague.Controllers
                 }
             }
 
-            return View(player);
+            return View(playerToUpdate);
         }
 
         [Authorize(Roles = "Admin")]
@@ -149,6 +156,39 @@ namespace BoardGameLeague.Controllers
                 .ToList();
 
             return View(player);
+        }
+
+        [Authorize(Roles = "Admin,Manager")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddToTeams(Guid id, List<Guid> SelectedTeamIds)
+        {
+            var player = await _context.Players
+                .Include(p => p.Teams)
+                .FirstOrDefaultAsync(p => p.Id == id);
+            if (player == null) return NotFound();
+
+            SelectedTeamIds = SelectedTeamIds ?? new List<Guid>();
+
+            // remove memberships not selected
+            var toRemove = player.Teams.Where(t => !SelectedTeamIds.Contains(t.Id)).ToList();
+            foreach (var t in toRemove)
+            {
+                player.Teams.Remove(t);
+            }
+
+            // add new memberships
+            var selectedTeams = await _context.Teams.Where(t => SelectedTeamIds.Contains(t.Id)).ToListAsync();
+            foreach (var t in selectedTeams)
+            {
+                if (!player.Teams.Any(pt => pt.Id == t.Id))
+                {
+                    player.Teams.Add(t);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Details), new { id });
         }
     }
 }

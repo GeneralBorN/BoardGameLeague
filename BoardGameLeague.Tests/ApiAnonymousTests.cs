@@ -33,7 +33,7 @@ public class ApiAnonymousTests : IClassFixture<CustomWebApplicationFactory>
     [Fact]
     public async Task GetTournaments_ReturnsDtoList()
     {
-        var tournaments = await _client.GetFromJsonAsync<List<TournamentDto>>("/api/tournaments");
+        var tournaments = await _client.GetFromJsonAsync<List<TournamentDto>>("/api/v1/tournaments");
 
         Assert.NotNull(tournaments);
         Assert.NotEmpty(tournaments!);

@@ -46,6 +46,26 @@ namespace BoardGameLeague.Controllers
             return PartialView("_TournamentCards", tournaments);
         }
 
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> LookupVenues(string q)
+        {
+            var query = _context.Venues.AsQueryable();
+
+            if (!string.IsNullOrEmpty(q))
+            {
+                query = query.Where(v => v.Name.ToLower().Contains(q.ToLower()));
+            }
+
+            var venues = await query
+                .OrderBy(v => v.Name)
+                .Select(v => new { id = v.Id, text = v.Name })
+                .Take(15)
+                .ToListAsync();
+
+            return Json(venues);
+        }
+
         private async Task PopulateVenuesAsync(Guid? selectedId = null)
         {
             var venues = await _leagueRepository.GetAllVenuesAsync();
@@ -174,7 +194,7 @@ namespace BoardGameLeague.Controllers
         [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> Edit(Guid id)
         {
-            var tournament = await _context.Tournaments.FindAsync(id);
+            var tournament = await _context.Tournaments.Include(t => t.Venue).FirstOrDefaultAsync(t => t.Id == id);
             if (tournament == null)
             {
                 return NotFound();
@@ -194,12 +214,18 @@ namespace BoardGameLeague.Controllers
             {
                 return NotFound();
             }
+
+            var tournamentToUpdate = await _context.Tournaments.Include(t => t.Venue).FirstOrDefaultAsync(t => t.Id == id);
+            if (tournamentToUpdate == null)
+            {
+                return NotFound();
+            }
             // attempt to bind posted date strings from custom picker
             if (Request.Form.TryGetValue("StartDate", out var startVal))
             {
                 if (TryParseAnyDate(startVal, out var parsedStart))
                 {
-                    tournament.StartDate = parsedStart;
+                    tournamentToUpdate.StartDate = parsedStart;
                     ModelState.Remove("StartDate");
                 }
                 else
@@ -212,7 +238,7 @@ namespace BoardGameLeague.Controllers
             {
                 if (TryParseAnyDate(endVal, out var parsedEnd))
                 {
-                    tournament.EndDate = parsedEnd;
+                    tournamentToUpdate.EndDate = parsedEnd;
                     ModelState.Remove("EndDate");
                 }
                 else
@@ -223,17 +249,17 @@ namespace BoardGameLeague.Controllers
 
             if (Request.Form.TryGetValue("VenueId", out var venueIdValue) && Guid.TryParse(venueIdValue.ToString(), out var parsedVenueId) && parsedVenueId != Guid.Empty)
             {
-                tournament.VenueId = parsedVenueId;
+                tournamentToUpdate.VenueId = parsedVenueId;
                 ClearVenueIdModelState();
             }
-            else if (tournament.VenueId == Guid.Empty && Request.Form.TryGetValue("VenueInput", out var venueInput) && !string.IsNullOrWhiteSpace(venueInput))
+            else if (tournamentToUpdate.VenueId == Guid.Empty && Request.Form.TryGetValue("VenueInput", out var venueInput) && !string.IsNullOrWhiteSpace(venueInput))
             {
                 var normalizedVenueInput = venueInput.ToString().Trim();
                 var matchedVenue = await _context.Venues
                     .FirstOrDefaultAsync(v => v.Name.Equals(normalizedVenueInput, StringComparison.OrdinalIgnoreCase));
                 if (matchedVenue != null)
                 {
-                    tournament.VenueId = matchedVenue.Id;
+                    tournamentToUpdate.VenueId = matchedVenue.Id;
                     ClearVenueIdModelState();
                 }
                 else
@@ -242,7 +268,7 @@ namespace BoardGameLeague.Controllers
                 }
             }
 
-            if (await TryUpdateModelAsync(tournament, "", t => t.Name, t => t.Description, t => t.IsOpen))
+            if (await TryUpdateModelAsync(tournamentToUpdate, "", t => t.Name, t => t.Description, t => t.IsOpen))
             {
                 if (ModelState.IsValid)
                 {
@@ -251,9 +277,9 @@ namespace BoardGameLeague.Controllers
                 }
             }
 
-            if (tournament.VenueId != Guid.Empty)
+            if (tournamentToUpdate.VenueId != Guid.Empty)
             {
-                ViewBag.Venue = tournament.Venue?.Name ?? string.Empty;
+                ViewBag.Venue = tournamentToUpdate.Venue?.Name ?? string.Empty;
             }
             else if (Request.Form.TryGetValue("VenueInput", out var venueText))
             {
@@ -263,8 +289,8 @@ namespace BoardGameLeague.Controllers
             {
                 ViewBag.Venue = string.Empty;
             }
-            await PopulateVenuesAsync(tournament.VenueId);
-            return View(tournament);
+            await PopulateVenuesAsync(tournamentToUpdate.VenueId);
+            return View(tournamentToUpdate);
         }
 
         [Authorize(Roles = "Admin,Manager")]
@@ -305,6 +331,18 @@ namespace BoardGameLeague.Controllers
             }
 
             return View(tournament);
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> GetAttachments(Guid id)
+        {
+            var attachments = await _context.Attachments
+                .Where(a => a.TournamentId == id)
+                .OrderByDescending(a => a.CreatedAt)
+                .ToListAsync();
+
+            return PartialView("_AttachmentList", attachments);
         }
 
         [Authorize(Roles = "Admin,Manager")]

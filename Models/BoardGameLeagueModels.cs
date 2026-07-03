@@ -188,21 +188,29 @@ namespace BoardGameLeague.Models
         [ForeignKey("Tournament")]
         [Required]
         public Guid TournamentId { get; set; }
+        [BindNever]
+        [ValidateNever]
         public virtual Tournament Tournament { get; set; } = null!;
 
         [ForeignKey("TeamA")]
         [Required]
         public Guid TeamAId { get; set; }
+        [BindNever]
+        [ValidateNever]
         public virtual Team TeamA { get; set; } = null!;
 
         [ForeignKey("TeamB")]
         [Required]
         public Guid TeamBId { get; set; }
+        [BindNever]
+        [ValidateNever]
         public virtual Team TeamB { get; set; } = null!;
 
         [ForeignKey("Game")]
         [Required]
         public Guid GameId { get; set; }
+        [BindNever]
+        [ValidateNever]
         public virtual BoardGame Game { get; set; } = null!;
 
         [DataType(DataType.DateTime)]
@@ -217,6 +225,7 @@ namespace BoardGameLeague.Models
         public bool IsCompleted { get; set; }
 
         [NotMapped]
+        [ValidateNever]
         public Team Winner => ScoreA > ScoreB ? TeamA : TeamB;
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

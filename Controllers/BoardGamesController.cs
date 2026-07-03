@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using BoardGameLeague.Models;
@@ -47,7 +48,7 @@ namespace BoardGameLeague.Controllers
         public IActionResult Create()
         {
             ViewBag.Categories = new SelectList(Enum.GetValues<GameCategory>());
-            return View(new BoardGame { AveragePlayTime = TimeSpan.FromMinutes(60) });
+            return View(new BoardGame { AveragePlayTime = TimeSpan.FromMinutes(60), Complexity = 0m });
         }
 
         [Authorize(Roles = "Admin,Manager")]
@@ -55,6 +56,8 @@ namespace BoardGameLeague.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(BoardGame game)
         {
+            ApplyComplexity(game);
+
             if (ModelState.IsValid)
             {
                 game.Id = Guid.NewGuid();
@@ -90,7 +93,15 @@ namespace BoardGameLeague.Controllers
                 return NotFound();
             }
 
-            if (await TryUpdateModelAsync(game, "", g => g.Name, g => g.Category, g => g.MinPlayers, g => g.MaxPlayers, g => g.AveragePlayTimeMinutes, g => g.Complexity))
+            var gameToUpdate = await _context.BoardGames.FindAsync(id);
+            if (gameToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            ApplyComplexity(gameToUpdate);
+
+            if (await TryUpdateModelAsync(gameToUpdate, "", g => g.Name, g => g.Category, g => g.MinPlayers, g => g.MaxPlayers, g => g.AveragePlayTimeMinutes))
             {
                 if (ModelState.IsValid)
                 {
@@ -99,8 +110,43 @@ namespace BoardGameLeague.Controllers
                 }
             }
 
-            ViewBag.Categories = new SelectList(Enum.GetValues<GameCategory>(), game.Category);
-            return View(game);
+            ViewBag.Categories = new SelectList(Enum.GetValues<GameCategory>(), gameToUpdate.Category);
+            return View(gameToUpdate);
+        }
+
+        private void ApplyComplexity(BoardGame game)
+        {
+            if (Request.Form.TryGetValue("Complexity", out var complexityValue) && TryParseComplexity(complexityValue, out var parsed))
+            {
+                game.Complexity = parsed;
+                ModelState.Remove("Complexity");
+                if (parsed < 0.1m || parsed > 5.0m)
+                {
+                    ModelState.AddModelError("Complexity", "The field Complexity must be between 0.1 and 5.");
+                }
+            }
+        }
+
+        private static bool TryParseComplexity(string? text, out decimal value)
+        {
+            value = default;
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return false;
+            }
+
+            text = text.Trim();
+            if (decimal.TryParse(text, NumberStyles.Number, CultureInfo.InvariantCulture, out value))
+            {
+                return true;
+            }
+
+            if (decimal.TryParse(text, NumberStyles.Number, CultureInfo.CurrentCulture, out value))
+            {
+                return true;
+            }
+
+            return decimal.TryParse(text.Replace(',', '.'), NumberStyles.Number, CultureInfo.InvariantCulture, out value);
         }
 
         [Authorize(Roles = "Admin,Manager")]

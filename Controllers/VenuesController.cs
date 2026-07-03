@@ -87,7 +87,13 @@ namespace BoardGameLeague.Controllers
                 return NotFound();
             }
 
-            if (await TryUpdateModelAsync(venue, "", v => v.Name, v => v.City, v => v.Country, v => v.Capacity, v => v.Indoor))
+            var venueToUpdate = await _context.Venues.FindAsync(id);
+            if (venueToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            if (await TryUpdateModelAsync(venueToUpdate, "", v => v.Name, v => v.City, v => v.Country, v => v.Capacity, v => v.Indoor))
             {
                 if (ModelState.IsValid)
                 {
@@ -96,7 +102,7 @@ namespace BoardGameLeague.Controllers
                 }
             }
 
-            return View(venue);
+            return View(venueToUpdate);
         }
 
         [Authorize(Roles = "Admin")]

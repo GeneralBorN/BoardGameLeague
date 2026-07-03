@@ -44,13 +44,21 @@ namespace BoardGameLeague.Controllers.Api
                 .Where(v => v.Name.Contains(q, System.StringComparison.OrdinalIgnoreCase))
                 .Select(v => new { v.Id, v.Name, Type = "Venue" });
 
+            var matches = (await _leagueRepository.GetAllMatchesAsync())
+                .Where(m => m.TeamA.Name.Contains(q, System.StringComparison.OrdinalIgnoreCase)
+                         || m.TeamB.Name.Contains(q, System.StringComparison.OrdinalIgnoreCase)
+                         || m.Tournament.Name.Contains(q, System.StringComparison.OrdinalIgnoreCase)
+                         || m.Game.Name.Contains(q, System.StringComparison.OrdinalIgnoreCase))
+                .Select(m => new { m.Id, Name = $"{m.TeamA.Name} - {m.TeamB.Name}", Type = "Match" });
+
             var results = new
             {
                 Tournaments = tournaments.Take(5),
                 Players = players.Take(5),
                 Teams = teams.Take(5),
                 BoardGames = boardGames.Take(5),
-                Venues = venues.Take(5)
+                Venues = venues.Take(5),
+                Matches = matches.Take(5)
             };
 
             return Ok(results);
