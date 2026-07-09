@@ -21,3 +21,10 @@ dotnet user-secrets init
 dotnet user-secrets set "Authentication:Google:ClientId" "OVDJE_ZALIJEPI_SVOJ_CLIENT_ID"
 
 dotnet user-secrets set "Authentication:Google:ClientSecret" "OVDJE_ZALIJEPI_SVOJ_CLIENT_SECRET"
+
+
+Azure
+https://portal.azure.com/
+
+Site
+boardgameleague-e3aec9frfeh6aee0.austriaeast-01.azurewebsites.net
