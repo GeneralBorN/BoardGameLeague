@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -93,6 +94,18 @@ if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(goo
 }
 builder.Services.AddRazorPages();
 
+// Azure App Service (Linux) terminates TLS at its front-end and forwards requests to Kestrel
+// over plain HTTP, so without this the app sees every request as HTTP: UseHttpsRedirection/UseHsts
+// would then redirect right back to HTTPS, causing an infinite redirect loop, and Google OAuth
+// would compute an http:// redirect_uri and fail. KnownNetworks/KnownProxies are cleared because
+// Azure's front-end IPs aren't fixed; the network between it and the app is already trusted.
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -111,6 +124,8 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
+app.UseForwardedHeaders();
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
