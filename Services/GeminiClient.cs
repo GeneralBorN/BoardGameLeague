@@ -45,7 +45,7 @@ namespace BoardGameLeague.Services
                     "Gemini:ApiKey is not configured. Set it via 'dotnet user-secrets set \"Gemini:ApiKey\" \"<key>\"' - never commit it to appsettings.json.");
             }
 
-            var model = _configuration["Gemini:Model"] ?? "gemini-3.5-flash";
+            var model = _configuration["Gemini:Model"] ?? "gemini-2.5-flash";
             var url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={apiKey}";
 
             for (var attempt = 1; attempt <= MaxAttempts; attempt++)
