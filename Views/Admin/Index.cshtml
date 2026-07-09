@@ -4,36 +4,38 @@
     ViewData["Title"] = "User Management";
 }
 
-<div class="d-flex justify-content-between align-items-center">
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
     <h1>User Management</h1>
     <a asp-action="Logs" class="btn btn-outline-secondary btn-sm">View application logs</a>
 </div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                Roles
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @string.Join(", ", item.Roles)
-            </td>
-            <td>
-                <a asp-action="EditUserRoles" asp-route-id="@item.Id">Edit Roles</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Email)
+                </th>
+                <th>
+                    Roles
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+    @foreach (var item in Model) {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td>
+                    @string.Join(", ", item.Roles)
+                </td>
+                <td>
+                    <a asp-action="EditUserRoles" asp-route-id="@item.Id">Edit Roles</a>
+                </td>
+            </tr>
+    }
+        </tbody>
+    </table>
+</div>

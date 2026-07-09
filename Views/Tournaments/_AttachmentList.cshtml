@@ -1,35 +1,37 @@
 @model IEnumerable<BoardGameLeague.Models.Attachment>
 
-<table class="table table-sm">
-    <thead>
-        <tr>
-            <th>File</th>
-            <th>Size</th>
-            <th>Uploaded</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var attachment in Model)
-        {
+<div class="table-responsive">
+    <table class="table table-sm">
+        <thead>
             <tr>
-                <td><a href="@attachment.FilePath" target="_blank">@attachment.FileName</a></td>
-                <td>@FormatBytes(attachment.FileSize)</td>
-                <td>@attachment.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
-                <td>
-                    @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
-                    {
-                        <button type="button"
-                                class="btn btn-sm btn-danger"
-                                onclick="deleteAttachment(@attachment.Id)">
-                            Delete
-                        </button>
-                    }
-                </td>
+                <th>File</th>
+                <th>Size</th>
+                <th>Uploaded</th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var attachment in Model)
+            {
+                <tr>
+                    <td><a href="@attachment.FilePath" target="_blank">@attachment.FileName</a></td>
+                    <td>@FormatBytes(attachment.FileSize)</td>
+                    <td>@attachment.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>
+                        @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                        {
+                            <button type="button"
+                                    class="btn btn-sm btn-danger"
+                                    onclick="deleteAttachment(@attachment.Id)">
+                                Delete
+                            </button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 
 @functions {
     private static string FormatBytes(long bytes)
