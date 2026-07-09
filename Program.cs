@@ -94,6 +94,10 @@ if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(goo
 }
 builder.Services.AddRazorPages();
 
+builder.Services.AddMcpServer()
+    .WithHttpTransport()
+    .WithToolsFromAssembly();
+
 // Azure App Service (Linux) terminates TLS at its front-end and forwards requests to Kestrel
 // over plain HTTP, so without this the app sees every request as HTTP: UseHttpsRedirection/UseHsts
 // would then redirect right back to HTTPS, causing an infinite redirect loop, and Google OAuth
@@ -152,6 +156,7 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapRazorPages();
+app.MapMcp("/mcp");
 
 app.Run();
 

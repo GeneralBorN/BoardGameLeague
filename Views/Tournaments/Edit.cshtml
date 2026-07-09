@@ -78,7 +78,7 @@
             <h4>Attachments</h4>
             <form asp-action="UploadAttachment" asp-controller="Tournaments" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
                 <div class="input-group">
-                    <input type="file" name="file" class="form-control" id="fileUpload" />
+                    <input type="file" name="file" class="form-control" id="fileUpload" required />
                     <button class="btn btn-outline-secondary" type="submit">Upload</button>
                 </div>
             </form>
