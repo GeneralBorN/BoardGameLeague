@@ -28,3 +28,5 @@ https://portal.azure.com/
 
 Site
 boardgameleague-e3aec9frfeh6aee0.austriaeast-01.azurewebsites.net
+
+dotnet add package Microsoft.Playwright.NUnit
